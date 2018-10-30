@@ -11,7 +11,7 @@
 #include "../utils/miniunit.h"
 #include "../src/libtrie.h"
 
-
+//global vars for the tests
 int tests_passed = 0;
 int tests_failed = 0;
 uint8_t dic_path[1024] = "";
@@ -708,18 +708,18 @@ static int test_node_traverse() {
     uint32_t expected_letters = 2 + 6 + 7 + 7 + 7;
 
     //create words container
-    words_s words = {};
+    words_s *words = (words_s *)calloc(1, sizeof(words_s));
 
     //head container
     string_s head = {};
 
-    node_traverse(&words, 0, &head, trie);
+    node_traverse(words, 0, &head, trie);
 
     //words letters counter
     int length = 0;
-    for (int i = 0; i < words.counter; ++i) {
+    for (int i = 0; i < words->counter; ++i) {
         int word_length = 0;
-        while (words.words[i][word_length]) {
+        while (words->words[i][word_length]) {
             length++;
             word_length++;
         }
@@ -761,22 +761,22 @@ static int test_node_traverse_decode() {
     }
 
     //create returned words container
-    words_s words_returned = {};
+    words_s *words_returned = (words_s *)calloc(1, sizeof(words_s));
 
     //head container
     string_s head = {};
 
-    node_traverse(&words_returned, 0, &head, trie);
+    node_traverse(words_returned, 0, &head, trie);
 
     printf("\nTraverse root node completed\n"
            "Check passed and returned words\n");
 
     //words letters counter
     int length = 0;
-    for (int i = 0; i < words_returned.counter; ++i) {
+    for (int i = 0; i < words_returned->counter; ++i) {
         int word_length = 0;
         uint8_t dst[256] = {};
-        decode_string(dst, words_returned.words[i]);
+        decode_string(dst, words_returned->words[i]);
 
         //check saved to trie and returned word from
         printf("returned and decoded: %s expected: %s\n", dst, words[i]);
@@ -787,6 +787,7 @@ static int test_node_traverse_decode() {
 
     yatrie_free(trie);
     return res;
+
 }
 
 static int test_trie_get_id() {
@@ -921,6 +922,8 @@ static int test_decode_string() {
 static int test_trie_save_load() {
     time_t begin1 = 0;
     time_t end1 = 0;
+    time_t begin2 = 0;
+    time_t end2 = 0;
 
 
     int res = 0;
@@ -931,13 +934,17 @@ static int test_trie_save_load() {
     //fill trie
     int c = 0;
     uint8_t string[512] = {};
+    uint8_t keyword[512] = {};
 
     FILE *file;
-    file = fopen("../dic/english.txt", "r");
+    file = fopen(dic_path, "r");
     if (file) {
         begin1 = clock();
         for (int j = 0, i = 0; (c = getc(file)) != EOF; ++j) {
             if (c == '\n' || c == '\r') {
+                if(i == 0){
+                    memcpy(keyword, string, 512);
+                }
                 trie_add(string, 0, trie);
                 memset(string, 0, 512);
                 j = -1;
@@ -959,6 +966,13 @@ static int test_trie_save_load() {
     trie_s *trie2 = (trie_s *) calloc(1, sizeof(trie_s));
     yatrie_load("/tmp/test.trie", trie2);
 
+    begin2 = clock();
+    uint8_t key[] = "africa";
+    for(int i = 0; i < 1000000; ++i) {
+        trie_get_id(key, 0, trie);
+    }
+    end2 = clock();
+
     //compare
     U_ASSERT(res, trie->nodes_increment == trie2->nodes_increment); //nodes counter
     U_ASSERT(res, trie->refs_increment == trie2->refs_increment); //refs counter
@@ -966,7 +980,8 @@ static int test_trie_save_load() {
     U_ASSERT(res, memcmp(trie->refs, trie2->refs, sizeof(trie->refs)) == 0); //refs block
 
 
-    //printf("yatrie creation time: %fs\n", (end1 - begin1) / (float) 1000000);
+    printf("yatrie creation time: %fs\n", (end1 - begin1) / (float) 1000000);
+    printf("yatrie search time 1 mln. rounds: %fs\n", (end2 - begin2) / (float) 1000000);
 
     yatrie_free(trie);
     yatrie_free(trie2);
@@ -1015,9 +1030,13 @@ static int another_node_traverse() {
     //get 'af' node id
     uint8_t word[] = "af";
     uint32_t id = trie_get_id(word, 0, trie);
+    if(!id){
+        printf("word: %s not found in the trie. Test aborted!\n", word);
+        return res;
+    }
 
     //create returned words container
-    words_s words_returned = {};
+    words_s *words_returned = calloc(1, sizeof(words_s));
 
     //head container
     uint8_t encoded[100] = {};
@@ -1031,12 +1050,12 @@ static int another_node_traverse() {
     memcpy(head.letters, encoded, 2);
 
     //traverse node with given id
-    node_traverse(&words_returned, id, &head, trie);
+    node_traverse(words_returned, id, &head, trie);
 
     //words letters counter
-    for (int i = 0; i < words_returned.counter; ++i) {
+    for (int i = 0; i < words_returned->counter; ++i) {
         uint8_t dst[256] = {};
-        decode_string(dst, words_returned.words[i]);
+        decode_string(dst, words_returned->words[i]);
         printf("returned: %s\n", dst);
     }
 
@@ -1049,8 +1068,8 @@ static int another_node_traverse() {
 
 static int all_tests() {
     U_RUN(test_foo);
-    U_RUN(test_node_traverse_decode);
     U_RUN(test_trie_save_load);
+    U_RUN(test_node_traverse_decode);
     U_RUN(test_decode_string);
     U_RUN(test_node_insert_ref);
     U_RUN(test_trie_get_id);
@@ -1092,9 +1111,13 @@ int main(int argc, char **argv) {
         memcpy(&dic_path, "../dic/english.txt", 18);
     }
 
-    if ((fopen(dic_path, "r")) == NULL) {
+
+    FILE *file = fopen(dic_path, "r");
+    if (!file) {
         printf("Unable to read dic: %s\n", dic_path);
         return 1;
+    }else{
+        fclose(file);
     }
 
     all_tests() ? printf("Results. Tests failed/passed: %d/%d\n", tests_failed, tests_passed)

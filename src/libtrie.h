@@ -20,7 +20,7 @@
 #define MAX_DEAL_SIZE MASK_BITS //deallocated memory array length
 #define MAX_NODES  6000000 //maximum allowed nodes
 #define MAX_REFS  10000000 //maximum allowed references
-#define MAX_NODE_LEAFS 300 //maximum allowed node leafs
+#define MAX_NODE_LEAFS 5000000 //maximum allowed node leafs
 #define MAX_WORD_LENGTH 100 //maximum word letters
 #define REF_SIZE 4 //reference size in bytes
 #define REF_SIZE_POWER 2   //reference size as the number of powers of two
