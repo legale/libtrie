@@ -1,0 +1,10 @@
+# 31.11.2018 v0.0.2
+- precount_init() function to fill uint8_t precount[256] array removed. Now array is declared as const and
+initialized during definition.
+- int32_bit_count() function improved. there is new uint8_t precount16[65536] array with precounted bits for 2-bytes word.
+Now counting is performed in 2 steps (4 steps before).
+- New function bit_int32_count() to count bits in uint32_t array, just like bit_count() for uint8_t array.
+- CHAR_BIT_SET() and CHAR_BIT_GET() macros renamed to BIT_SET() and BIT_GET() respectively.
+- LIKELY(), UNLIKELY() macros added.
+- CHAR_BIT_COUNT(), INT32_BIT_COUNT() macros added.
+- BIT_ARRAY_GET() BIT_ARRAY_SET() macros added.

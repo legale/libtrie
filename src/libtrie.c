@@ -19,15 +19,46 @@
 
 //global static vars
 //precounted bits
-uint8_t static precount[256] = {};
-uint8_t static precount2[MASK_INDEX][256][9] = {};
-uint8_t static const precount_mask[8] = {0b0, 0b1, 0b11, 0b111, 0b1111, 0b11111, 0b111111, 0b1111111};
-uint8_t static const precount_offset_mask[8] = {0b11111111, 0b11111110, 0b11111100, 0b11111000, 0b11110000, 0b11100000,
-                                                0b11000000, 0b10000000};
+//MACROS TO DEFINE precount[256] and precont16[65536] arrays
+#   define B2(n) n,     n+1,     n+1,     n+2
+#   define B4(n) B2(n), B2(n+1), B2(n+1), B2(n+2)
+#   define B6(n) B4(n), B4(n+1), B4(n+1), B4(n+2)
+#   define B8(n) B6(n), B6(n+1), B6(n+1), B6(n+2)
+#   define B10(n) B8(n), B8(n+1), B8(n+1), B8(n+2)
+#   define B12(n) B10(n), B10(n+1), B10(n+1), B10(n+2)
+#   define B14(n) B12(n), B12(n+1), B12(n+1), B12(n+2)
 
+static const unsigned char precount[256] =
+        {
+                B6(0), B6(1), B6(1), B6(2)
+        };
+
+static const unsigned char precount16[65536] =
+        {
+                B14(0), B14(1), B14(1), B14(2)
+        };
+
+
+uint8_t static precount2[12][256][8] = {};
+uint8_t static const precount_mask[8] = {0b0, 0b1, 0b11, 0b111, 0b1111, 0b11111, 0b111111, 0b1111111};
+uint8_t static const precount_offset_mask[8] = {0b11111111, 0b11111110, 0b11111100, 0b11111000,
+                                                0b11110000, 0b11100000, 0b11000000, 0b10000000};
+uint32_t static const precount32_offset_mask[32] = {
+        0b11111111111111111111111111111111, 0b11111111111111111111111111111110, 0b11111111111111111111111111111100,
+        0b11111111111111111111111111111000, 0b11111111111111111111111111110000, 0b11111111111111111111111111100000,
+        0b11111111111111111111111111000000, 0b11111111111111111111111110000000, 0b11111111111111111111111100000000,
+        0b11111111111111111111111000000000, 0b11111111111111111111110000000000, 0b11111111111111111111100000000000,
+        0b11111111111111111111000000000000, 0b11111111111111111110000000000000, 0b11111111111111111100000000000000,
+        0b11111111111111111000000000000000, 0b11111111111111110000000000000000, 0b11111111111111100000000000000000,
+        0b11111111111111000000000000000000, 0b11111111111110000000000000000000, 0b11111111111100000000000000000000,
+        0b11111111111000000000000000000000, 0b11111111110000000000000000000000, 0b11111111100000000000000000000000,
+        0b11111111000000000000000000000000, 0b11111110000000000000000000000000, 0b11111100000000000000000000000000,
+        0b11111000000000000000000000000000, 0b11110000000000000000000000000000, 0b11100000000000000000000000000000,
+        0b11000000000000000000000000000000, 0b10000000000000000000000000000000,
+};
 
 uint8_t bca[][3] = {
-        {},     /* void [0] */
+        {},    /* void [0] */
         {48,}, /* 0 [1] */
         {49,}, /* 1 [2] */
         {50,}, /* 2 [3] */
@@ -223,7 +254,6 @@ void decode_string(uint8_t dst[], uint8_t src[]) {
     }
 }
 
-
 void encode_string(uint8_t *dst, uint8_t *src) {
     if (abc[48][0] != 1) {
         init_alphabet();
@@ -231,7 +261,7 @@ void encode_string(uint8_t *dst, uint8_t *src) {
 
     int j = 0;
     for (int i = 0; src[i] != '\0'; i++) {
-        if (abc[src[i]][0] != '\0' || src[i] == 48) { //code 48 is 0 char
+        if (abc[src[i]][0] != '\0') {
             dst[j] = abc[src[i]][0];
         } else {
             dst[j] = abc[src[i]][src[i + 1]];
@@ -241,30 +271,12 @@ void encode_string(uint8_t *dst, uint8_t *src) {
     }
 }
 
-
-uint8_t char_bit_set(uint8_t bitmask, uint8_t bit) {
-    bitmask |= 1 << bit - 1;
-    return bitmask;
-}
-
-uint8_t char_bit_clear(uint8_t bitmask, uint8_t bit) {
-    bitmask &= ~(1 << bit - 1);
-    return bitmask;
-}
-
-uint8_t char_bit_get(uint8_t bitmask, uint8_t bit) {
-    return (bitmask >> bit - 1) & 1;
-}
-
 uint8_t char_bit_count(uint8_t i, uint8_t length) {
     //if i == 0 return 0
     if (i == 0) {
         return 0;
     }
-    //init precounted bits array
-    if (precount[1] != 1) {
-        precount_init();
-    }
+
     //cut bitmask counter
     switch (length) {
         case 8:
@@ -278,54 +290,19 @@ uint8_t char_bit_count(uint8_t i, uint8_t length) {
     return precount[i];
 }
 
-uint32_t int32_bit_set(uint32_t bitmask, uint8_t bit) {
-    bitmask |= 1 << bit - 1;
-    return bitmask;
-}
-
-uint8_t int32_bit_get(uint32_t bitmask, uint8_t bit) {
-    return (bitmask >> bit - 1) & 1;
-}
-
-uint32_t int32_bit_clear(uint32_t bitmask, uint8_t bit) {
-    bitmask &= ~(1 << bit - 1);
-    return bitmask;
-}
-
 uint8_t int32_bit_count(uint32_t i, uint8_t length) {
     //if i == 0 return 0
     if (i == 0) {
         return 0;
     }
-    //init precounted bits array
-    if (precount[1] != 1) {
-        precount_init();
-    }
+
     //cut bitmask counter
-    if (length == 0) {
+    if (UNLIKELY(length == 0)) {
         return 0;
     } else {
         i &= (2 << length - 1) - 1;
     }
-    return precount[i & 0xff] +
-           precount[(i >> 8) & 0xff] +
-           precount[(i >> 16) & 0xff] +
-           precount[i >> 24];
-}
-
-uint8_t bit_get(uint8_t bitmask[], uint8_t bit) {
-    //first we need to calculate char index in the bitmask array
-    int i = (bit - 1) >> 3; //(bit-1)>>3 same as (bit-1)/8
-    int rest = bit & 7; //same as bit % 8
-    return rest ? CHAR_BIT_GET(bitmask[i], rest) : CHAR_BIT_GET(bitmask[i], 8);
-}
-
-void bit_set(uint8_t bitmask[], uint8_t bit) {
-    //first we need to calculate char index in the bitmask array
-    int i = (bit - 1) >> 3; //(bit-1)>>3 same as (bit-1)/8
-    int rest = bit & 7; //same as bit % 8
-    bitmask[i] = rest ? CHAR_BIT_SET(bitmask[i], rest) : CHAR_BIT_SET(bitmask[i], 8);
-    return;
+    return precount16[i & 0xffff] + precount16[(i >> 16) & 0xffff];
 }
 
 uint8_t bit_count(uint8_t bitmask[], uint8_t offset, uint8_t last_bit) {
@@ -343,13 +320,13 @@ uint8_t bit_count(uint8_t bitmask[], uint8_t offset, uint8_t last_bit) {
             return res;
         }
 
-        res += char_bit_count(bitmask[i] >> head, 8);
+        res += CHAR_BIT_COUNT(bitmask[i] >> head);
         ++i;
     }
 
     //full bytes
     for (; i < i_max; ++i) {
-        res += char_bit_count(bitmask[i], 8);
+        res += CHAR_BIT_COUNT(bitmask[i]);
     }
 
     //last partial byte
@@ -360,21 +337,36 @@ uint8_t bit_count(uint8_t bitmask[], uint8_t offset, uint8_t last_bit) {
     return res;
 }
 
-void precount_init() {
-    //fill precount array
-    for (int i = 0; i < 256; i++) {
-        precount[i] = (i & 1) + precount[i / 2];
+uint8_t bit_int32_count(uint32_t bitmask[], uint8_t offset, uint8_t last_bit) {
+    uint16_t res = 0;
+    uint16_t i = offset >> 5;
+    uint16_t i_max = last_bit >> 5;
+    uint16_t head = offset & 31;
+    uint16_t tail = last_bit & 31;
+
+    //first partial byte
+    if (head) {
+        //if offset and last bit within the same int
+        if (i == i_max && tail) {
+            res += int32_bit_count(bitmask[i] & precount32_offset_mask[head], tail);
+            return res;
+        }
+
+        res += int32_bit_count(bitmask[i] >> head, 32);
+        ++i;
     }
-}
 
-node_s *node_set(unsigned int id, node_s *_node, trie_s *trie) {
-    //nodes is a global array
-    memcpy(&trie->nodes[id], _node, sizeof(node_s));
-    return &trie->nodes[id];
-}
+    //full int
+    for (; i < i_max; ++i) {
+        res += int32_bit_count(bitmask[i], 32);
+    }
 
-node_s *node_get(uint32_t node_id, trie_s *trie) {
-    return &trie->nodes[node_id];
+    //last partial int
+    if (tail) {
+        res += int32_bit_count(bitmask[i], tail);
+    }
+
+    return res;
 }
 
 uint32_t trie_add(uint8_t string[], uint32_t parent_id, trie_s *trie) {
@@ -386,7 +378,7 @@ uint32_t trie_add(uint8_t string[], uint32_t parent_id, trie_s *trie) {
         parent_id = trie_char_add(parent_id, indexes[i], trie);
     }
     //add last char flag for the last char
-    trie->nodes[parent_id].mask[0] = CHAR_BIT_SET(trie->nodes[parent_id].mask[0], 1);
+    trie->nodes[parent_id].mask[0] = BIT_SET(trie->nodes[parent_id].mask[0], 1);
     return parent_id;
 }
 
@@ -398,11 +390,11 @@ uint32_t trie_char_add(uint32_t parent_id, uint8_t char_index, trie_s *trie) {
 
     //number of chars (bits) before the current char (bit) position in the alphabet
     //count the number of bits to determine the position of the char
-    pos = bit_count(parent_node->mask, 1, char_index);
+    pos = bit_int32_count(parent_node->mask, 1, char_index);
 
     //if char exists in the bitmask we need to get next node_s id from the references block
     //char_index + 1 because char_index 0 is 1 bit
-    if (bit_get(parent_node->mask, char_index + 1)) {
+    if (BIT_ARRAY_GET(parent_node->mask, char_index + 1)) {
         next_node_id = REF_GET(parent_node->ref_id, pos, trie);
     } else {
         //else we create new references block bigger than before to insert new reference
@@ -414,7 +406,7 @@ uint32_t trie_char_add(uint32_t parent_id, uint8_t char_index, trie_s *trie) {
 
 uint32_t node_insert_ref(uint8_t char_index, uint8_t insert_pos, node_s *parent_node, trie_s *trie) {
     //first we need to calculate allocated memory for the current node_s references
-    uint32_t size = bit_count(parent_node->mask, 1, MASK_BITS); //skip bit 1 (leaf flag)
+    uint32_t size = bit_int32_count(parent_node->mask, 1, MASK_BITS); //skip bit 1 (leaf flag)
     //old reference id if at least one bit was set
     uint32_t ref_id_old = parent_node->ref_id;
 
@@ -458,7 +450,7 @@ uint32_t node_insert_ref(uint8_t char_index, uint8_t insert_pos, node_s *parent_
 
 
     //now save bit to the bitmask
-    bit_set(parent_node->mask, char_index + 1);
+    BIT_ARRAY_SET(parent_node->mask, char_index + 1);
     return next_node_id;
 
 }
@@ -473,7 +465,7 @@ void node_get_children(children_s *children, uint32_t node_id, trie_s *trie) {
 
     //if mask is empty return NULL
     //skip first bit because 1 bit is an end word flag so we no need to count it
-    children->length = bit_count(parent_node->mask, 1, MASK_BITS);
+    children->length = bit_int32_count(parent_node->mask, 1, MASK_BITS);
     //if there is no letters here
     if (children->length == 0) {
         //try to get leaf flag
@@ -482,7 +474,7 @@ void node_get_children(children_s *children, uint32_t node_id, trie_s *trie) {
     }
 
     //now we get children letters from the node mask
-    mask_get_bits_raised_pre(children->letters, parent_node->mask);
+    char_mask_get_bits_raised_pre(children->letters, (uint8_t *)parent_node->mask);
 
     //now we get children nodes
     memcpy(children->nodes, &trie->refs[parent_node->ref_id], children->length << REF_SIZE_POWER);
@@ -539,22 +531,25 @@ void mask_get_bits_raised(uint8_t res[], uint8_t bitmask[]) {
 }
 
 //to fill array res with numbers of raised bits of the bitmask using precount2 array
-void mask_get_bits_raised_pre(uint8_t res[], uint8_t bitmask[]) {
-    for (int8_t i = 0; i < MASK_INDEX; ++i) {
+void char_mask_get_bits_raised_pre(uint8_t *res, uint8_t *bitmask) {
+    memset(res, 0, MASK_BITS);
+    for (int8_t i = 0; i < 12; ++i) {
         if (bitmask[i] == 0) {
             continue;
         } else {
             //if bitmask != 0
-            uint8_t *byte = char_mask_get_bits_raised_pre(bitmask[i], i);
-            uint8_t cnt = byte[0];
-            memcpy(res, &byte[1], cnt);
+            uint8_t *raised = char_get_bits_raised_pre(bitmask[i], i);
+            uint8_t cnt = CHAR_BIT_COUNT(bitmask[i]);
+            memcpy(res, raised, cnt);
             res += cnt; //shift res array address by cnt
         }
     }
 }
 
+
+
 //fill array res with raised bit of the bitmask
-void char_mask_get_bits_raised(uint8_t res[], uint8_t bitmask) {
+void char_get_bits_raised(uint8_t *res, uint8_t bitmask) {
     for (int8_t i = 0; i < 8; ++i) {
         if (bitmask >> i & 1) {
             *res++ = i + 1;
@@ -562,11 +557,21 @@ void char_mask_get_bits_raised(uint8_t res[], uint8_t bitmask) {
     }
 }
 
-//return a pointer to the array with raised bits of the bitmask. array[0] is a number of the raised bits
-uint8_t *char_mask_get_bits_raised_pre(uint8_t bitmask, uint8_t index) {
+//fill array res with raised bit of the bitmask
+void int32_get_bits_raised(uint8_t *res, uint32_t bitmask) {
+    memset(res, 0, 32);
+    for (int8_t i = 0; i < 32; ++i) {
+        if (bitmask >> i & 1) {
+            *res++ = i + 1;
+        }
+    }
+}
+
+//return a pointer to the array with raised bits of the bitmask. array[0] value is a number of the raised bits
+uint8_t *char_get_bits_raised_pre(uint8_t bitmask, uint8_t index) {
     //init precounted bits array
-    if (precount2[0][1][0] != 1) {
-        precount_init2();
+    if (UNLIKELY(precount2[0][1][0] != 1)) {
+        precount_char_init();
     }
 
     return precount2[index][bitmask];
@@ -574,20 +579,18 @@ uint8_t *char_mask_get_bits_raised_pre(uint8_t bitmask, uint8_t index) {
 
 
 //fill precount2 array with arrays of raised bits for the any 1 byte value
-void precount_init2() {
-    for (int i = 0; i < 256; ++i) {
+void precount_char_init() {
+    for (int i = 0; i < 256; ++i) { //each byte value cycle
         uint8_t res[8] = {};
-        char_mask_get_bits_raised(res, i);
-        //count number of bits raised
-        uint8_t cnt = char_bit_count(i, 8);
-        for (int j = 0; j < MASK_INDEX; ++j) {
-            precount2[j][i][0] = cnt; //save number of bits raised
+        char_get_bits_raised(res, i);
+        for (int j = 0; j < 12; ++j) { //each bitmask index value cycle
             for (int k = 0; res[k] && k < 8; ++k) {
-                precount2[j][i][k + 1] = res[k] + (j << 3);
+                precount2[j][i][k] = res[k] + (j << 3);
             }
         }
     }
 }
+
 
 void yatrie_free(trie_s *trie) {
     for (uint32_t i = 0; i < MAX_DEAL_SIZE; ++i) {
@@ -604,10 +607,10 @@ uint32_t trie_get_id(uint8_t *word, uint32_t parent_id, trie_s *trie) {
     for (uint32_t i = 0; indexes[i]; ++i) {
         //if char exists in the bitmask we need to get next node_s id from the references block
         //char_index + 1 because char_index 0 is 1 bit
-        if (bit_get(parent_node->mask, indexes[i] + 1)) {
+        if (LIKELY(BIT_ARRAY_GET(parent_node->mask, indexes[i] + 1))) {
             //number of chars (bits) before the current char (bit) position in the alphabet
             //count the number of bits to determine the position of the char
-            uint8_t pos = bit_count(parent_node->mask, 1, indexes[i]);
+            uint8_t pos = bit_int32_count(parent_node->mask, 1, indexes[i]);
             parent_id = REF_GET(parent_node->ref_id, pos, trie);
             parent_node = NODE_GET(parent_id, trie);
         } else {

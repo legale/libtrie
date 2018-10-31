@@ -88,7 +88,29 @@ static int test_char_bit_count() {
     return res;
 }
 
-static int test_bit_count() {
+
+
+    static int test_bit_int32_count() {
+        int res = 0;
+        uint32_t mask[] = {0xffffffff, 0xffffffff, 0xffffffff};
+
+        //brute force
+        for (int j = 1; j < 97; ++j) { //last bit
+            for (int i = 0; i < 96; ++i) { //offset
+                if (i > j) {
+                    continue;
+                }
+                if (bit_int32_count(mask, i, j) != j - i) {
+                    printf("%d %d cnt: %d\n", i, j, bit_int32_count(mask, i, j));
+                }
+                U_ASSERT(res, bit_int32_count(mask, i, j) == j - i);
+            }
+        }
+
+        return res;
+    }
+
+    static int test_bit_count() {
     int res = 0;
     uint8_t mask[] = {255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255};
 
@@ -109,70 +131,53 @@ static int test_bit_count() {
     return res;
 }
 
-static int test_char_bit_get() {
+static int test_bit_get() {
     int res = 0;
-    U_ASSERT(res, char_bit_get(0b0, 4) == 0);
-    U_ASSERT(res, char_bit_get(0b1, 4) == 0);
-    U_ASSERT(res, char_bit_get(0b1, 1) == 1);
-    U_ASSERT(res, char_bit_get(0b10, 2) == 1);
-    U_ASSERT(res, char_bit_get(0b101, 3) == 1);
-    U_ASSERT(res, char_bit_get(0b101, 2) == 0);
-    return res;
-}
-
-static int test_char_bit_set() {
-    int res = 0;
-    U_ASSERT(res, char_bit_set(0b1, 2) == 0b11);
-    U_ASSERT(res, char_bit_set(0b0, 4) == 0b1000);
-    U_ASSERT(res, char_bit_set(0b1, 4) == 0b1001);
-    U_ASSERT(res, char_bit_set(0b01111111, 8) == 0b11111111);
+    U_ASSERT(res, BIT_GET(0b0, 4) == 0);
+    U_ASSERT(res, BIT_GET(0b1, 4) == 0);
+    U_ASSERT(res, BIT_GET(0b1, 1) == 1);
+    U_ASSERT(res, BIT_GET(0b10, 2) == 1);
+    U_ASSERT(res, BIT_GET(0b101, 3) == 1);
+    U_ASSERT(res, BIT_GET(0b101, 2) == 0);
     return res;
 }
 
 static int test_bit_set() {
     int res = 0;
-    uint8_t bitmask[8] = {}; //8 * 8 = 64bit mask
-    bit_set(bitmask, 1);
+    U_ASSERT(res, BIT_SET(0b1, 2) == 0b11);
+    U_ASSERT(res, BIT_SET(0b0, 4) == 0b1000);
+    U_ASSERT(res, BIT_SET(0b1, 4) == 0b1001);
+    U_ASSERT(res, BIT_SET(0b01111111, 8) == 0b11111111);
+    return res;
+}
+
+static int test_bit_array_set() {
+    int res = 0;
+    uint32_t bitmask[3] = {}; //32 * 3 = 96bit mask
+    BIT_ARRAY_SET(bitmask, 1);
     U_ASSERT(res, bitmask[0] == 0b1);
-    bit_set(bitmask, 2);
+
+    BIT_ARRAY_SET(bitmask, 2);
     U_ASSERT(res, bitmask[0] == 0b11);
-    bit_set(bitmask, 64);
-    U_ASSERT(res, bitmask[7] == 0b10000000);
-    bit_set(bitmask, 63);
-    U_ASSERT(res, bitmask[7] == 0b11000000);
-    bit_set(bitmask, 57);
-    U_ASSERT(res, bitmask[7] == 0b11000001);
+
+    BIT_ARRAY_SET(bitmask, 32);
+    U_ASSERT(res, bitmask[0] == 0b10000000000000000000000000000011);
+
+    BIT_ARRAY_SET(bitmask, 65);
+    U_ASSERT(res, bitmask[2] == 0b1);
+
+    BIT_ARRAY_SET(bitmask, 95);
+    U_ASSERT(res, bitmask[2] == 0b1000000000000000000000000000001);
     return res;
 }
 
-static int test_char_bit_clear() {
-    unsigned int res = 0;
-    U_ASSERT(res, char_bit_clear(0b10, 2) == 0b0);
-    U_ASSERT(res, char_bit_clear(0b1111, 1) == 0b1110);
-    return res;
-}
-
-static int test_int32_bit_get() {
+static int test_bit_array_get() {
     int res = 0;
-    U_ASSERT(res, int32_bit_get(0b11111111000000001111111100000000, 32) == 1);
-    U_ASSERT(res, int32_bit_get(0b11111111000000001111111100000000, 1) == 0);
-    U_ASSERT(res, int32_bit_get(0b11111111000000001111111100000000, 9) == 1);
-    U_ASSERT(res, int32_bit_get(0b11111111000000001111111100000000, 17) == 0);
-    return res;
-}
-
-static int test_int32_bit_clear() {
-    int res = 0;
-    U_ASSERT(res, int32_bit_clear(0b11111111000000001111111100000001, 1) == 0b11111111000000001111111100000000);
-    U_ASSERT(res, int32_bit_clear(0b11111111000000001111111100000000, 32) == 0b01111111000000001111111100000000);
-    return res;
-}
-
-static int test_int32_bit_set() {
-    int res = 0;
-    U_ASSERT(res, int32_bit_set(0b0, 1) == 0b1);
-    U_ASSERT(res, int32_bit_set(0b0, 32) == 0b10000000000000000000000000000000);
-    U_ASSERT(res, int32_bit_set(0b10111111000000001111111100000000, 31) == 0b11111111000000001111111100000000);
+    uint32_t bitmask[3] = {0b10000, 0b10000, 0xffffffff}; //32 * 3 = 96bit mask
+    U_ASSERT(res, BIT_ARRAY_GET(bitmask, 1) == 0);
+    U_ASSERT(res, BIT_ARRAY_GET(bitmask, 5) == 1);
+    U_ASSERT(res, BIT_ARRAY_GET(bitmask, 88) == 1);
+    U_ASSERT(res, BIT_ARRAY_GET(bitmask, 96) == 1);
     return res;
 }
 
@@ -280,7 +285,7 @@ static int test_node_insert_ref() {
     U_ASSERT(res, trie->refs_increment == 21); //expected 21 because allocated block size is 6 (from 15 to 20)
     //check mask
     U_ASSERT(res, trie->nodes[0].mask[0] == 0b11100111); //bit 8, 7, 6, 3, 2, 1 raised expected
-    U_ASSERT(res, trie->nodes[0].mask[11] == 0b1000000); //bit 7 raised expected (index 11 * 8 + 7 = 95)
+    U_ASSERT(res, trie->nodes[0].mask[2] == 0b1000000000000000000000000000000); //bit 31 raised expected (index 2 * 32 + 31 = 95)
     //check refs block directly
     U_ASSERT(res, trie->refs[15] == node_id_bit2);
     U_ASSERT(res, trie->refs[16] == node_id_bit3);
@@ -302,8 +307,8 @@ static int test_node_insert_ref() {
     U_ASSERT(res, trie->refs_increment == 28); //expected 28 because allocated block size is 7 (from 21 to 27)
     //check mask
     U_ASSERT(res, trie->nodes[0].mask[0] == 0b11100111); //bit 8, 7, 6, 3, 2, 1 raised expected
-    U_ASSERT(res, trie->nodes[0].mask[11] == 0b1000000); //bit 7 raised expected (index 11 * 8 + 7 = 95)
-    U_ASSERT(res, trie->nodes[0].mask[4] == 0b1); //bit 1 raised expected (index 4 * 8 + 1 = 3)
+    U_ASSERT(res, trie->nodes[0].mask[2] == 0b1000000000000000000000000000000); //bit 31 raised expected (index 2 * 32 + 31 = 95)
+    U_ASSERT(res, trie->nodes[0].mask[1] == 0b1); //bit 1 raised expected (index 1 * 32 + 1 = 33)
     //check refs block directly
     U_ASSERT(res, trie->refs[21] == node_id_bit2);
     U_ASSERT(res, trie->refs[22] == node_id_bit3);
@@ -460,27 +465,6 @@ static int test_trie_char_add() {
     return res;
 }
 
-static int test_bit_get() {
-    int res = 0;
-    uint8_t b = 0b10101010;
-    uint8_t bitmask[12] = {b, b, b, b, b, b, b, b, b, b, b, b};
-    uint8_t bitmask2[12] = {0};
-    bit_set(bitmask2, 27);
-
-
-    U_ASSERT(res, bit_get(bitmask, 8) == 1);
-    U_ASSERT(res, bit_get(bitmask, 1) == 0);
-    U_ASSERT(res, bit_get(bitmask, 2) == 1);
-    U_ASSERT(res, bit_get(bitmask, 3) == 0);
-    U_ASSERT(res, bit_get(bitmask, 48) == 1);
-    U_ASSERT(res, bit_get(bitmask, 10) == 1);
-    U_ASSERT(res, bit_get(bitmask, 11) == 0);
-    U_ASSERT(res, bit_get(bitmask, 16) == 1);
-    U_ASSERT(res, bit_get(bitmask, 96) == 1);
-
-
-    return res;
-}
 
 static int test_trie_add() {
     int res = 0;
@@ -534,40 +518,39 @@ static int test_trie_add() {
 
 static int test_char_mask_get_bits_raised_pre() {
 
-    uint32_t *indicator = &tests_passed;
 
     int res = 0;
-    uint8_t bits[9]; //index 0 is a number of raised bits
-    uint8_t expected1[9] = {8, 1, 2, 3, 4, 5, 6, 7, 8}; //(0b11111111) full byte
-    uint8_t expected2[9] = {1, 1};                      //(0b00000001) only first byte
-    uint8_t expected3[9] = {1, 8};                      //(0b10000000) only last byte
-    uint8_t expected4[9] = {4, 82, 84, 86, 88};         //(0b10101010)
-    uint8_t expected5[9] = {2, 1, 8};                   //(0b10000001) first and last
+    uint8_t bits[8]; //index 0 is a number of raised bits
+    uint8_t expected1[8] = {1, 2, 3, 4, 5, 6, 7, 8}; //(0b11111111) full byte
+    uint8_t expected2[8] = {1};                      //(0b00000001) only first byte
+    uint8_t expected3[8] = {8};                      //(0b10000000) only last byte
+    uint8_t expected4[8] = {82, 84, 86, 88};         //(0b10101010)
+    uint8_t expected5[8] = {1, 8};                   //(0b10000001) first and last
 
     //dataset 1
-    memset(bits, 0, 9);//clear array
-    memcpy(bits, char_mask_get_bits_raised_pre(0b11111111, 0), 9);
-    U_ASSERT(res, memcmp(expected1, bits, 9) == 0);
+    memset(bits, 0, 8);//clear array
+    memcpy(bits, char_get_bits_raised_pre(0b11111111, 0), 8);
+    U_ASSERT(res, memcmp(expected1, bits, 8) == 0);
 
     //dataset 2
-    memset(bits, 0, 9);//clear array
-    memcpy(bits, char_mask_get_bits_raised_pre(0b1, 0), 9);
-    U_ASSERT(res, memcmp(expected2, bits, 9) == 0);
+    memset(bits, 0, 8);//clear array
+    memcpy(bits, char_get_bits_raised_pre(0b1, 0), 8);
+    U_ASSERT(res, memcmp(expected2, bits, 8) == 0);
 
     //dataset 3
-    memset(bits, 0, 9);//clear array
-    memcpy(bits, char_mask_get_bits_raised_pre(0b10000000, 0), 9);
-    U_ASSERT(res, memcmp(expected3, bits, 9) == 0);
+    memset(bits, 0, 8);//clear array
+    memcpy(bits, char_get_bits_raised_pre(0b10000000, 0), 8);
+    U_ASSERT(res, memcmp(expected3, bits, 8) == 0);
 
     //dataset 4
-    memset(bits, 0, 9);//clear array
-    memcpy(bits, char_mask_get_bits_raised_pre(0b10101010, 10), 9);
-    U_ASSERT(res, memcmp(expected4, bits, 9) == 0);
+    memset(bits, 0, 8);//clear array
+    memcpy(bits, char_get_bits_raised_pre(0b10101010, 10), 8);
+    U_ASSERT(res, memcmp(expected4, bits, 8) == 0);
 
     //dataset 5
-    memset(bits, 0, 9);//clear array
-    memcpy(bits, char_mask_get_bits_raised_pre(0b10000001, 0), 9);
-    U_ASSERT(res, memcmp(expected5, bits, 9) == 0);
+    memset(bits, 0, 8);//clear array
+    memcpy(bits, char_get_bits_raised_pre(0b10000001, 0), 8);
+    U_ASSERT(res, memcmp(expected5, bits, 8) == 0);
 
     return res;
 }
@@ -581,24 +564,26 @@ static int test_char_mask_get_bits_raised() {
     uint8_t expected3[8] = {8}; //only last byte (0b10000000)
 
     memset(bits, 0, 8);//clear array
-    char_mask_get_bits_raised(bits, 0b11111111); //get raised bits
+    char_get_bits_raised(bits, 0b11111111); //get raised bits
     U_ASSERT(res, memcmp(expected1, bits, 8) == 0); //compare bits with expected
 
     memset(bits, 0, 8);
-    char_mask_get_bits_raised(bits, 0b1);
+    char_get_bits_raised(bits, 0b1);
     U_ASSERT(res, memcmp(expected2, bits, 8) == 0);
 
     memset(bits, 0, 8);
-    char_mask_get_bits_raised(bits, 0b10000000);
+    char_get_bits_raised(bits, 0b10000000);
     U_ASSERT(res, memcmp(expected3, bits, 8) == 0);
 
     return res;
 }
 
+
+
 static int test_mask_get_bits_raised_pre() {
     int res = 0;
 
-    uint8_t mask[MASK_INDEX];
+    uint8_t mask[MASK_BITS];
     uint8_t bits[MASK_BITS];
     uint8_t expected1[MASK_BITS] = {1, 2, 3};
     uint8_t expected2[MASK_BITS] = {10, 20, 30};
@@ -609,32 +594,32 @@ static int test_mask_get_bits_raised_pre() {
                                     80, 81, 88, 89, 96};
 
     //dataset 1
-    memset(mask, 0, MASK_INDEX); //clear array
+    memset(mask, 0, MASK_BITS); //clear array
     memset(bits, 0, MASK_BITS); //clear array
     mask[0] = 0b111;
-    mask_get_bits_raised_pre(bits, mask); //calculation
+    char_mask_get_bits_raised_pre(bits, mask); //calculation
     U_ASSERT(res, memcmp(expected1, bits, MASK_BITS) == 0);
 
     //dataset 2
-    memset(mask, 0, MASK_INDEX); //clear array
+    memset(mask, 0, MASK_BITS); //clear array
     memset(bits, 0, MASK_BITS); //clear array
     mask[1] = 0b10; //bit 10
     mask[2] = 0b1000; //bit 20
     mask[3] = 0b100000; //bit 30
-    mask_get_bits_raised_pre(bits, mask); //calculation
+    char_mask_get_bits_raised_pre(bits, mask); //calculation
     U_ASSERT(res, memcmp(expected2, bits, MASK_BITS) == 0);
 
     //dataset 3
-    memset(mask, 0, MASK_INDEX); //clear array
+    memset(mask, 0, MASK_BITS); //clear array
     memset(bits, 0, MASK_BITS); //clear array
     mask[1] = 0b100; //bit 11
     mask[2] = 0b100000; //bit 22
     mask[4] = 0b1; //bit 33
-    mask_get_bits_raised_pre(bits, mask); //calculation
+    char_mask_get_bits_raised_pre(bits, mask); //calculation
     U_ASSERT(res, memcmp(expected3, bits, MASK_BITS) == 0);
 
     //dataset 4
-    memset(mask, 0, MASK_INDEX); //clear array
+    memset(mask, 0, MASK_BITS); //clear array
     memset(bits, 0, MASK_BITS); //clear array
     mask[0] = 0b10000001; //bit 1,8
     mask[1] = 0b10000001; //bit 9,16
@@ -648,7 +633,7 @@ static int test_mask_get_bits_raised_pre() {
     mask[9] = 0b10000001; //bit 73,80
     mask[10] = 0b10000001; //bit 81,88
     mask[11] = 0b10000001; //bit 89,96
-    mask_get_bits_raised_pre(bits, mask); //calculation
+    char_mask_get_bits_raised_pre(bits, mask); //calculation
     U_ASSERT(res, memcmp(expected4, bits, MASK_BITS) == 0);
 
 
@@ -1067,29 +1052,26 @@ static int another_node_traverse() {
 }
 
 static int all_tests() {
-    U_RUN(test_foo);
+//    U_RUN(test_foo);
+    U_RUN(test_bit_int32_count);
+    U_RUN(test_bit_get);
+    U_RUN(test_bit_set);
+    U_RUN(test_bit_array_set);
+    U_RUN(test_bit_array_get);
+    U_RUN(test_bit_count);
+    U_RUN(test_char_bit_count);
+    U_RUN(test_char_mask_get_bits_raised);
+    U_RUN(test_char_mask_get_bits_raised_pre);
     U_RUN(test_trie_save_load);
     U_RUN(test_node_traverse_decode);
     U_RUN(test_decode_string);
     U_RUN(test_node_insert_ref);
     U_RUN(test_trie_get_id);
     U_RUN(test_node_traverse);
-    U_RUN(test_bit_get);
-    U_RUN(test_bit_count);
-    U_RUN(test_char_bit_count);
     U_RUN(test_trie_add);
     U_RUN(test_node_get_children);
     U_RUN(test_mask_get_bits_raised_pre);
-    U_RUN(test_char_mask_get_bits_raised_pre);
-    U_RUN(test_char_mask_get_bits_raised);
     U_RUN(test_trie_char_add);
-    U_RUN(test_char_bit_get);
-    U_RUN(test_char_bit_set);
-    U_RUN(test_bit_set);
-    U_RUN(test_char_bit_clear);
-    U_RUN(test_int32_bit_get);
-    U_RUN(test_int32_bit_set);
-    U_RUN(test_int32_bit_clear);
     U_RUN(test_transcode_string);
     U_RUN(complex_test);
     U_RUN(another_node_traverse);
