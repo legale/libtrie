@@ -3,4 +3,4 @@
 
 
 ## DEMO AND TESTS
-`gcc ./src/libtrie.c ./src/single_list.c ./tests/tests.c -o tests.a  && ./tests.a dic/english.txt`
+`gcc ./src/libtrie.c ./src/single_list.c ./tests/tests.c -o tests.out  && ./tests.out dic/english.txt`
