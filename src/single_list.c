@@ -1,6 +1,6 @@
 /* file: single_list.c
  *
- * Single linked list structure v0.3
+ * Single linked list_s structure v0.3
  *
  * Copyright (C) 2018  legale.legale <legale.legale@gmail.com>
  * This software is provided under MIT license.
@@ -15,7 +15,7 @@
 
 
 //internal function to find parent node_s by child element key
-list_node *list_nodes_traverse(list_node *parent, list_node *node, unsigned char *key, unsigned int len) {
+list_node_s *list_nodes_traverse(list_node_s *parent, list_node_s *node, unsigned char *key, unsigned int len) {
     if (memcmp(node->key, key, len) == 0) {
         return parent;
     } else if (node->next != NULL) {
@@ -25,13 +25,13 @@ list_node *list_nodes_traverse(list_node *parent, list_node *node, unsigned char
     }
 }
 
-//add list element in the beginning
- list *list_unshift(list *lst, unsigned char *key, unsigned int len, unsigned long value) {
+//add list_s element in the beginning
+ list_s *list_unshift(list_s *lst, unsigned char *key, unsigned int len, unsigned long value) {
     if (lst == NULL) {
-        lst = (list *) calloc(1, sizeof(list)); //init list with zeroes
+        lst = (list_s *) calloc(1, sizeof(list_s)); //init list_s with zeroes
     }
 
-    list_node *new = (list_node *) malloc(sizeof(list_node)); //allocate memory for the new element
+    list_node_s *new = (list_node_s *) malloc(sizeof(list_node_s)); //allocate memory for the new element
     new->value = value;
     if (len > 0) {
         new->key = (unsigned char *) malloc(len);
@@ -55,13 +55,13 @@ list_node *list_nodes_traverse(list_node *parent, list_node *node, unsigned char
 }
 
 
-//add list element in the end
- list *list_push(list *lst, unsigned char *key, unsigned int len, unsigned long value) {
+//add list_s element in the end
+ list_s *list_push(list_s *lst, unsigned char *key, unsigned int len, unsigned long value) {
     if (lst == NULL) {
-        lst = (list *) calloc(1, sizeof(list)); //init new list with zeroes
+        lst = (list_s *) calloc(1, sizeof(list_s)); //init new list_s with zeroes
     }
 
-    list_node *new = (list_node *) malloc(sizeof(list_node)); //allocate memory for the new element
+    list_node_s *new = (list_node_s *) malloc(sizeof(list_node_s)); //allocate memory for the new element
     new->value = value;
     if (len > 0) {
         new->key = (unsigned char *) malloc(len);
@@ -84,8 +84,8 @@ list_node *list_nodes_traverse(list_node *parent, list_node *node, unsigned char
 };
 
 
-//get list element value by the key
- unsigned long list_get(list *lst, unsigned char *key, unsigned int len) {
+//get list_s element value by the key
+ unsigned long list_get(list_s *lst, unsigned char *key, unsigned int len) {
     if (lst == NULL || lst->head == NULL) {
         return 0;
     }
@@ -94,14 +94,14 @@ list_node *list_nodes_traverse(list_node *parent, list_node *node, unsigned char
         return lst->head->value;
     }
 
-    list_node *parent = list_nodes_traverse(NULL, lst->head, key, len);
+    list_node_s *parent = list_nodes_traverse(NULL, lst->head, key, len);
     if (parent != NULL) {
         return parent->next->value;
     }
 }
 
-//get last element of the linked list
- unsigned long list_pop(list *lst) {
+//get last element of the linked list_s
+ unsigned long list_pop(list_s *lst) {
     if (lst == NULL || lst->tail == NULL) {
         return 0;
     } else {
@@ -109,19 +109,19 @@ list_node *list_nodes_traverse(list_node *parent, list_node *node, unsigned char
         if (lst->head == lst->tail) { //if head = tail
             if (lst->tail->key != NULL) {
                 free(lst->tail->key); //free key memory
-                lst->tail->key = NULL; //set list key pointer to NULL
+                lst->tail->key = NULL; //set list_s key pointer to NULL
             }
-            free(lst->tail); //free list element memory
-            lst->head = NULL; //set list pointer to NULL
-            lst->tail = NULL; //set list pointer to NULL
+            free(lst->tail); //free list_s element memory
+            lst->head = NULL; //set list_s pointer to NULL
+            lst->tail = NULL; //set list_s pointer to NULL
         } else {
-            list_node *next = lst->tail->next;
+            list_node_s *next = lst->tail->next;
             if (lst->tail->key != NULL) {
                 free(lst->tail->key); //free key memory
-                lst->tail->key = NULL; //set list key pointer to NULL
+                lst->tail->key = NULL; //set list_s key pointer to NULL
             }
             free(lst->tail);
-            lst->tail = NULL; //set list pointer to NULL
+            lst->tail = NULL; //set list_s pointer to NULL
             lst->tail = next;
         }
         --lst->elements;
@@ -129,8 +129,8 @@ list_node *list_nodes_traverse(list_node *parent, list_node *node, unsigned char
     }
 }
 
-//get first element of the linked list
- unsigned long list_shift(list *lst) {
+//get first element of the linked list_s
+ unsigned long list_shift(list_s *lst) {
     if (lst == NULL || lst->head == NULL) {
         return 0;
     } else {
@@ -138,20 +138,20 @@ list_node *list_nodes_traverse(list_node *parent, list_node *node, unsigned char
         if (lst->head == lst->tail) { //if head = tail
             if (lst->head->key != NULL) {
                 free(lst->head->key); //free key memory
-                lst->head->key = NULL; //set list key pointer to NULL
+                lst->head->key = NULL; //set list_s key pointer to NULL
             }
-            free(lst->head); //free list element memory
-            lst->head = NULL; //set list pointer to NULL
-            lst->tail = NULL; //set list pointer to NULL
+            free(lst->head); //free list_s element memory
+            lst->head = NULL; //set list_s pointer to NULL
+            lst->tail = NULL; //set list_s pointer to NULL
         } else {
-            list_node *next = lst->head->next;
+            list_node_s *next = lst->head->next;
             if (lst->head->key != NULL) {
                 free(lst->head->key); //free key memory
-                lst->head->key = NULL; //set list key pointer to NULL
+                lst->head->key = NULL; //set list_s key pointer to NULL
             }
 
             free(lst->head);
-            lst->head = NULL; //set list pointer to NULL
+            lst->head = NULL; //set list_s pointer to NULL
             lst->head = next;
         }
         --lst->elements;
@@ -159,33 +159,33 @@ list_node *list_nodes_traverse(list_node *parent, list_node *node, unsigned char
     }
 }
 
-//remove list element by the key and key counter
- int list_remove(list *lst, unsigned char *key, unsigned int len) {
+//remove list_s element by the key and key counter
+ int list_remove(list_s *lst, unsigned char *key, unsigned int len) {
     if (memcmp(lst->head->key, key, len) == 0) {
         if (lst->head == lst->tail) { //if head = tail
             free(lst->head->key); //free key memory
-            lst->head->key = NULL; //set list key pointer to NULL
-            free(lst->head); //free list element memory
-            lst->head = NULL; //set list pointer to NULL
-            free(lst); //free list pointer
-            lst = NULL; //set list pointer to NULL
+            lst->head->key = NULL; //set list_s key pointer to NULL
+            free(lst->head); //free list_s element memory
+            lst->head = NULL; //set list_s pointer to NULL
+            free(lst); //free list_s pointer
+            lst = NULL; //set list_s pointer to NULL
             return 0;
         } else {
-            list_node *next = lst->head->next;
+            list_node_s *next = lst->head->next;
             free(lst->head->key);
-            lst->head->key = NULL; //set list pointer to NULL
+            lst->head->key = NULL; //set list_s pointer to NULL
             free(lst->head);
-            lst->head = NULL; //set list pointer to NULL
+            lst->head = NULL; //set list_s pointer to NULL
             lst->head = next;
             return --lst->elements;
         }
     }
 
-    list_node *parent = list_nodes_traverse(NULL, lst->head, key, len);
+    list_node_s *parent = list_nodes_traverse(NULL, lst->head, key, len);
     if (parent != NULL) {
-        list_node *next = parent->next->next;
+        list_node_s *next = parent->next->next;
         free(parent->next->key);
-        parent->next->key = NULL; //set list key pointer to NULL
+        parent->next->key = NULL; //set list_s key pointer to NULL
         free(parent->next);
         parent->next = next;
         --lst->elements;
@@ -195,7 +195,7 @@ list_node *list_nodes_traverse(list_node *parent, list_node *node, unsigned char
     }
 }
 
- void list_free(list *lst) {
+ void list_free(list_s *lst) {
     if (lst == NULL) {
         return;
     }
@@ -206,7 +206,7 @@ list_node *list_nodes_traverse(list_node *parent, list_node *node, unsigned char
             lst->head->key = NULL;
         }
 
-        list_node *old_head = lst->head;
+        list_node_s *old_head = lst->head;
         if (lst->head->next != NULL) {
             lst->head = lst->head->next;
         } else {

@@ -1,6 +1,6 @@
 /* file: single_list.h
  *
- * Single linked list structure v0.3
+ * Single linked list_s structure v0.3.1
  *
  * Copyright (C) 2018  legale.legale <legale.legale@gmail.com>
  * This software is provided under MIT license.
@@ -13,36 +13,35 @@
 
 
 //structures
-//linked list
-typedef struct list_node {
+typedef struct _list_node_s {
     unsigned char *key;
     unsigned long value;
-    struct list_node *next;
-} list_node;
+    struct _list_node_s *next;
+} list_node_s;
 
-//list
-typedef struct list {
-    unsigned int elements; //list elements counter
-    struct list_node *head; //head node_s
-    struct list_node *tail; //tail node_s
-} list;
+//list_s
+typedef struct _list_s {
+    unsigned int elements; //list_s elements counter
+    list_node_s *head; //head node_s
+    list_node_s *tail; //tail node_s
+} list_s;
 
 
 //functions declaration
- list *list_unshift(list *lst, unsigned char *key, unsigned int len, unsigned long value);
+ list_s *list_unshift(list_s *lst, unsigned char *key, unsigned int len, unsigned long value);
 
- list *list_push(list *lst, unsigned char *key, unsigned int len, unsigned long value);
+ list_s *list_push(list_s *lst, unsigned char *key, unsigned int len, unsigned long value);
 
- unsigned long list_get(list *lst, unsigned char *key, unsigned int len);
+ unsigned long list_get(list_s *lst, unsigned char *key, unsigned int len);
 
- unsigned long list_pop(list *lst);
+ unsigned long list_pop(list_s *lst);
 
- unsigned long list_shift(list *lst);
+ unsigned long list_shift(list_s *lst);
 
- int list_remove(list *lst, unsigned char *key, unsigned int len);
+ int list_remove(list_s *lst, unsigned char *key, unsigned int len);
 
- list_node *list_nodes_traverse(list_node *parent, list_node *node, unsigned char *key, unsigned int len);
+ list_node_s *list_nodes_traverse(list_node_s *parent, list_node_s *node, unsigned char *key, unsigned int len);
 
- void list_free(list *lst);
+ void list_free(list_s *lst);
 
 #endif /* single_list.h  */

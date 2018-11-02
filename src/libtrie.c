@@ -19,25 +19,9 @@
 
 //global static vars
 //precounted bits
-//MACROS TO DEFINE precount[256] and precont16[65536] arrays
-#   define B2(n) n,     n+1,     n+1,     n+2
-#   define B4(n) B2(n), B2(n+1), B2(n+1), B2(n+2)
-#   define B6(n) B4(n), B4(n+1), B4(n+1), B4(n+2)
-#   define B8(n) B6(n), B6(n+1), B6(n+1), B6(n+2)
-#   define B10(n) B8(n), B8(n+1), B8(n+1), B8(n+2)
-#   define B12(n) B10(n), B10(n+1), B10(n+1), B10(n+2)
-#   define B14(n) B12(n), B12(n+1), B12(n+1), B12(n+2)
-
-static const unsigned char precount[256] =
-        {
-                B6(0), B6(1), B6(1), B6(2)
-        };
-
-static const unsigned char precount16[65536] =
-        {
-                B14(0), B14(1), B14(1), B14(2)
-        };
-
+#include "precount.h"
+static const unsigned char precount[256] = {PRECOUNT};
+static const unsigned char precount16[65536] = {PRECOUNT16};
 
 uint8_t static precount2[12][256][8] = {};
 uint8_t static const precount_mask[8] = {0b0, 0b1, 0b11, 0b111, 0b1111, 0b11111, 0b111111, 0b1111111};
@@ -58,95 +42,96 @@ uint32_t static const precount32_offset_mask[32] = {
 };
 
 uint8_t bca[][3] = {
-        {},    /* void [0] */
-        {48,}, /* 0 [1] */
-        {49,}, /* 1 [2] */
-        {50,}, /* 2 [3] */
-        {51,}, /* 3 [4] */
-        {52,}, /* 4 [5] */
-        {53,}, /* 5 [6] */
-        {54,}, /* 6 [7] */
-        {55,}, /* 7 [8] */
-        {56,}, /* 8 [9] */
-        {57,}, /* 9 [10] */
-        {208, 176,}, /* а [11] */
-        {208, 177,}, /* б [12] */
-        {208, 178,}, /* в [13] */
-        {208, 179,}, /* г [14] */
-        {208, 180,}, /* д [15] */
-        {208, 181,}, /* е [16] */
-        {209, 145,}, /* ё [17] */
-        {208, 182,}, /* ж [18] */
-        {208, 183,}, /* з [19] */
-        {208, 184,}, /* и [20] */
-        {208, 185,}, /* й [21] */
-        {208, 186,}, /* к [22] */
-        {208, 187,}, /* л [23] */
-        {208, 188,}, /* м [24] */
-        {208, 189,}, /* н [25] */
-        {208, 190,}, /* о [26] */
-        {208, 191,}, /* п [27] */
-        {209, 128,}, /* р [28] */
-        {209, 129,}, /* с [29] */
-        {209, 130,}, /* т [30] */
-        {209, 131,}, /* у [31] */
-        {209, 132,}, /* ф [32] */
-        {209, 133,}, /* х [33] */
-        {209, 134,}, /* ц [34] */
-        {209, 135,}, /* ч [35] */
-        {209, 136,}, /* ш [36] */
-        {209, 137,}, /* щ [37] */
-        {209, 138,}, /* ъ [38] */
-        {209, 139,}, /* ы [39] */
-        {209, 140,}, /* ь [40] */
-        {209, 141,}, /* э [41] */
-        {209, 142,}, /* ю [42] */
-        {209, 143,}, /* я [43] */
-        {97,}, /* a [44] */
-        {98,}, /* b [45] */
-        {99,}, /* c [46] */
-        {100,}, /* d [47] */
-        {101,}, /* e [48] */
-        {102,}, /* f [49] */
-        {103,}, /* g [50] */
-        {104,}, /* h [51] */
-        {105,}, /* i [52] */
-        {106,}, /* j [53] */
-        {107,}, /* k [54] */
-        {108,}, /* l [55] */
-        {109,}, /* m [56] */
-        {110,}, /* n [57] */
-        {111,}, /* o [58] */
-        {112,}, /* p [59] */
-        {113,}, /* q [60] */
-        {114,}, /* r [61] */
-        {115,}, /* s [62] */
-        {116,}, /* t [63] */
-        {117,}, /* u [64] */
-        {118,}, /* v [65] */
-        {119,}, /* w [66] */
-        {120,}, /* x [67] */
-        {121,}, /* y [68] */
-        {122,}, /* z [69] */
-        {39,}, /* ' [70] */
-        {34,}, /* " [71] */
-        {96,}, /* ` [72] */
-        {126,}, /* ~ [73] */
-        {32,}, /*   [74] */
-        {33,}, /* ! [75] */
-        {64,}, /* @ [76] */
-        {35,}, /* # [77] */
-        {36,}, /* $ [78] */
-        {37,}, /* % [79] */
-        {94,}, /* ^ [80] */
-        {38,}, /* & [81] */
-        {42,}, /* * [82] */
-        {40,}, /* ( [83] */
-        {41,}, /* ) [84] */
-        {95,}, /* _ [85] */
-        {43,}, /* + [86] */
-        {61,}, /* = [87] */
-        {45,}, /* - [88] */
+        {},     /*   [0] not used  */
+        {},     /*   [1] reserverd */
+        {48, }, /* 0 [2] */
+        {49, }, /* 1 [3] */
+        {50, }, /* 2 [4] */
+        {51, }, /* 3 [5] */
+        {52, }, /* 4 [6] */
+        {53, }, /* 5 [7] */
+        {54, }, /* 6 [8] */
+        {55, }, /* 7 [9] */
+        {56, }, /* 8 [10] */
+        {57, }, /* 9 [11] */
+        {208, 176, }, /* а [12] */
+        {208, 177, }, /* б [13] */
+        {208, 178, }, /* в [14] */
+        {208, 179, }, /* г [15] */
+        {208, 180, }, /* д [16] */
+        {208, 181, }, /* е [17] */
+        {209, 145, }, /* ё [18] */
+        {208, 182, }, /* ж [19] */
+        {208, 183, }, /* з [20] */
+        {208, 184, }, /* и [21] */
+        {208, 185, }, /* й [22] */
+        {208, 186, }, /* к [23] */
+        {208, 187, }, /* л [24] */
+        {208, 188, }, /* м [25] */
+        {208, 189, }, /* н [26] */
+        {208, 190, }, /* о [27] */
+        {208, 191, }, /* п [28] */
+        {209, 128, }, /* р [29] */
+        {209, 129, }, /* с [30] */
+        {209, 130, }, /* т [31] */
+        {209, 131, }, /* у [32] */
+        {209, 132, }, /* ф [33] */
+        {209, 133, }, /* х [34] */
+        {209, 134, }, /* ц [35] */
+        {209, 135, }, /* ч [36] */
+        {209, 136, }, /* ш [37] */
+        {209, 137, }, /* щ [38] */
+        {209, 138, }, /* ъ [39] */
+        {209, 139, }, /* ы [40] */
+        {209, 140, }, /* ь [41] */
+        {209, 141, }, /* э [42] */
+        {209, 142, }, /* ю [43] */
+        {209, 143, }, /* я [44] */
+        {97, }, /* a [45] */
+        {98, }, /* b [46] */
+        {99, }, /* c [47] */
+        {100, }, /* d [48] */
+        {101, }, /* e [49] */
+        {102, }, /* f [50] */
+        {103, }, /* g [51] */
+        {104, }, /* h [52] */
+        {105, }, /* i [53] */
+        {106, }, /* j [54] */
+        {107, }, /* k [55] */
+        {108, }, /* l [56] */
+        {109, }, /* m [57] */
+        {110, }, /* n [58] */
+        {111, }, /* o [59] */
+        {112, }, /* p [60] */
+        {113, }, /* q [61] */
+        {114, }, /* r [62] */
+        {115, }, /* s [63] */
+        {116, }, /* t [64] */
+        {117, }, /* u [65] */
+        {118, }, /* v [66] */
+        {119, }, /* w [67] */
+        {120, }, /* x [68] */
+        {121, }, /* y [69] */
+        {122, }, /* z [70] */
+        {39, }, /* ' [71] */
+        {34, }, /* " [72] */
+        {96, }, /* ` [73] */
+        {126, }, /* ~ [74] */
+        {32, }, /*   [75] */
+        {33, }, /* ! [76] */
+        {64, }, /* @ [77] */
+        {35, }, /* # [78] */
+        {36, }, /* $ [79] */
+        {37, }, /* % [80] */
+        {94, }, /* ^ [81] */
+        {38, }, /* & [82] */
+        {42, }, /* * [83] */
+        {40, }, /* ( [84] */
+        {41, }, /* ) [85] */
+        {95, }, /* _ [86] */
+        {43, }, /* + [87] */
+        {61, }, /* = [88] */
+        {45, }, /* - [89] */
 };
 
 
@@ -155,94 +140,94 @@ uint8_t abc[256][256] = {};
 //global vars end
 
 void init_alphabet() {
-/* 0 [1] */ abc[48][0] = 1;
-/* 1 [2] */ abc[49][0] = 2;
-/* 2 [3] */ abc[50][0] = 3;
-/* 3 [4] */ abc[51][0] = 4;
-/* 4 [5] */ abc[52][0] = 5;
-/* 5 [6] */ abc[53][0] = 6;
-/* 6 [7] */ abc[54][0] = 7;
-/* 7 [8] */ abc[55][0] = 8;
-/* 8 [9] */ abc[56][0] = 9;
-/* 9 [10] */ abc[57][0] = 10;
-/* а [11] */ abc[208][176] = 11;
-/* б [12] */ abc[208][177] = 12;
-/* в [13] */ abc[208][178] = 13;
-/* г [14] */ abc[208][179] = 14;
-/* д [15] */ abc[208][180] = 15;
-/* е [16] */ abc[208][181] = 16;
-/* ё [17] */ abc[209][145] = 17;
-/* ж [18] */ abc[208][182] = 18;
-/* з [19] */ abc[208][183] = 19;
-/* и [20] */ abc[208][184] = 20;
-/* й [21] */ abc[208][185] = 21;
-/* к [22] */ abc[208][186] = 22;
-/* л [23] */ abc[208][187] = 23;
-/* м [24] */ abc[208][188] = 24;
-/* н [25] */ abc[208][189] = 25;
-/* о [26] */ abc[208][190] = 26;
-/* п [27] */ abc[208][191] = 27;
-/* р [28] */ abc[209][128] = 28;
-/* с [29] */ abc[209][129] = 29;
-/* т [30] */ abc[209][130] = 30;
-/* у [31] */ abc[209][131] = 31;
-/* ф [32] */ abc[209][132] = 32;
-/* х [33] */ abc[209][133] = 33;
-/* ц [34] */ abc[209][134] = 34;
-/* ч [35] */ abc[209][135] = 35;
-/* ш [36] */ abc[209][136] = 36;
-/* щ [37] */ abc[209][137] = 37;
-/* ъ [38] */ abc[209][138] = 38;
-/* ы [39] */ abc[209][139] = 39;
-/* ь [40] */ abc[209][140] = 40;
-/* э [41] */ abc[209][141] = 41;
-/* ю [42] */ abc[209][142] = 42;
-/* я [43] */ abc[209][143] = 43;
-/* a [44] */ abc[97][0] = 44;
-/* b [45] */ abc[98][0] = 45;
-/* c [46] */ abc[99][0] = 46;
-/* d [47] */ abc[100][0] = 47;
-/* e [48] */ abc[101][0] = 48;
-/* f [49] */ abc[102][0] = 49;
-/* g [50] */ abc[103][0] = 50;
-/* h [51] */ abc[104][0] = 51;
-/* i [52] */ abc[105][0] = 52;
-/* j [53] */ abc[106][0] = 53;
-/* k [54] */ abc[107][0] = 54;
-/* l [55] */ abc[108][0] = 55;
-/* m [56] */ abc[109][0] = 56;
-/* n [57] */ abc[110][0] = 57;
-/* o [58] */ abc[111][0] = 58;
-/* p [59] */ abc[112][0] = 59;
-/* q [60] */ abc[113][0] = 60;
-/* r [61] */ abc[114][0] = 61;
-/* s [62] */ abc[115][0] = 62;
-/* t [63] */ abc[116][0] = 63;
-/* u [64] */ abc[117][0] = 64;
-/* v [65] */ abc[118][0] = 65;
-/* w [66] */ abc[119][0] = 66;
-/* x [67] */ abc[120][0] = 67;
-/* y [68] */ abc[121][0] = 68;
-/* z [69] */ abc[122][0] = 69;
-/* ' [70] */ abc[39][0] = 70;
-/* " [71] */ abc[34][0] = 71;
-/* ` [72] */ abc[96][0] = 72;
-/* ~ [73] */ abc[126][0] = 73;
-/*   [74] */ abc[32][0] = 74;
-/* ! [75] */ abc[33][0] = 75;
-/* @ [76] */ abc[64][0] = 76;
-/* # [77] */ abc[35][0] = 77;
-/* $ [78] */ abc[36][0] = 78;
-/* % [79] */ abc[37][0] = 79;
-/* ^ [80] */ abc[94][0] = 80;
-/* & [81] */ abc[38][0] = 81;
-/* * [82] */ abc[42][0] = 82;
-/* ( [83] */ abc[40][0] = 83;
-/* ) [84] */ abc[41][0] = 84;
-/* _ [85] */ abc[95][0] = 85;
-/* + [86] */ abc[43][0] = 86;
-/* = [87] */ abc[61][0] = 87;
-/* - [88] */ abc[45][0] = 88;
+/* 0 [2] */ abc[48][0] = 2;
+/* 1 [3] */ abc[49][0] = 3;
+/* 2 [4] */ abc[50][0] = 4;
+/* 3 [5] */ abc[51][0] = 5;
+/* 4 [6] */ abc[52][0] = 6;
+/* 5 [7] */ abc[53][0] = 7;
+/* 6 [8] */ abc[54][0] = 8;
+/* 7 [9] */ abc[55][0] = 9;
+/* 8 [10] */ abc[56][0] = 10;
+/* 9 [11] */ abc[57][0] = 11;
+/* а [12] */ abc[208][176] = 12;
+/* б [13] */ abc[208][177] = 13;
+/* в [14] */ abc[208][178] = 14;
+/* г [15] */ abc[208][179] = 15;
+/* д [16] */ abc[208][180] = 16;
+/* е [17] */ abc[208][181] = 17;
+/* ё [18] */ abc[209][145] = 18;
+/* ж [19] */ abc[208][182] = 19;
+/* з [20] */ abc[208][183] = 20;
+/* и [21] */ abc[208][184] = 21;
+/* й [22] */ abc[208][185] = 22;
+/* к [23] */ abc[208][186] = 23;
+/* л [24] */ abc[208][187] = 24;
+/* м [25] */ abc[208][188] = 25;
+/* н [26] */ abc[208][189] = 26;
+/* о [27] */ abc[208][190] = 27;
+/* п [28] */ abc[208][191] = 28;
+/* р [29] */ abc[209][128] = 29;
+/* с [30] */ abc[209][129] = 30;
+/* т [31] */ abc[209][130] = 31;
+/* у [32] */ abc[209][131] = 32;
+/* ф [33] */ abc[209][132] = 33;
+/* х [34] */ abc[209][133] = 34;
+/* ц [35] */ abc[209][134] = 35;
+/* ч [36] */ abc[209][135] = 36;
+/* ш [37] */ abc[209][136] = 37;
+/* щ [38] */ abc[209][137] = 38;
+/* ъ [39] */ abc[209][138] = 39;
+/* ы [40] */ abc[209][139] = 40;
+/* ь [41] */ abc[209][140] = 41;
+/* э [42] */ abc[209][141] = 42;
+/* ю [43] */ abc[209][142] = 43;
+/* я [44] */ abc[209][143] = 44;
+/* a [45] */ abc[97][0] = 45;
+/* b [46] */ abc[98][0] = 46;
+/* c [47] */ abc[99][0] = 47;
+/* d [48] */ abc[100][0] = 48;
+/* e [49] */ abc[101][0] = 49;
+/* f [50] */ abc[102][0] = 50;
+/* g [51] */ abc[103][0] = 51;
+/* h [52] */ abc[104][0] = 52;
+/* i [53] */ abc[105][0] = 53;
+/* j [54] */ abc[106][0] = 54;
+/* k [55] */ abc[107][0] = 55;
+/* l [56] */ abc[108][0] = 56;
+/* m [57] */ abc[109][0] = 57;
+/* n [58] */ abc[110][0] = 58;
+/* o [59] */ abc[111][0] = 59;
+/* p [60] */ abc[112][0] = 60;
+/* q [61] */ abc[113][0] = 61;
+/* r [62] */ abc[114][0] = 62;
+/* s [63] */ abc[115][0] = 63;
+/* t [64] */ abc[116][0] = 64;
+/* u [65] */ abc[117][0] = 65;
+/* v [66] */ abc[118][0] = 66;
+/* w [67] */ abc[119][0] = 67;
+/* x [68] */ abc[120][0] = 68;
+/* y [69] */ abc[121][0] = 69;
+/* z [70] */ abc[122][0] = 70;
+/* ' [71] */ abc[39][0] = 71;
+/* " [72] */ abc[34][0] = 72;
+/* ` [73] */ abc[96][0] = 73;
+/* ~ [74] */ abc[126][0] = 74;
+/*   [75] */ abc[32][0] = 75;
+/* ! [76] */ abc[33][0] = 76;
+/* @ [77] */ abc[64][0] = 77;
+/* # [78] */ abc[35][0] = 78;
+/* $ [79] */ abc[36][0] = 79;
+/* % [80] */ abc[37][0] = 80;
+/* ^ [81] */ abc[94][0] = 81;
+/* & [82] */ abc[38][0] = 82;
+/* * [83] */ abc[42][0] = 83;
+/* ( [84] */ abc[40][0] = 84;
+/* ) [85] */ abc[41][0] = 85;
+/* _ [86] */ abc[95][0] = 86;
+/* + [87] */ abc[43][0] = 87;
+/* = [88] */ abc[61][0] = 88;
+/* - [89] */ abc[45][0] = 89;
 }
 
 void decode_string(uint8_t dst[], uint8_t src[]) {
@@ -300,7 +285,7 @@ uint8_t int32_bit_count(uint32_t i, uint8_t length) {
     if (UNLIKELY(length == 0)) {
         return 0;
     } else {
-        i &= (2 << length - 1) - 1;
+        i &= (2 << (length - 1)) - 1;
     }
     return precount16[i & 0xffff] + precount16[(i >> 16) & 0xffff];
 }
@@ -352,13 +337,14 @@ uint8_t bit_int32_count(uint32_t bitmask[], uint8_t offset, uint8_t last_bit) {
             return res;
         }
 
-        res += int32_bit_count(bitmask[i] >> head, 32);
+        uint32_t bitmask_tmp = bitmask[i] >> head; //tmp variable to shift bitmask only once
+        res += INT32_BIT_COUNT(bitmask_tmp);
         ++i;
     }
 
     //full int
     for (; i < i_max; ++i) {
-        res += int32_bit_count(bitmask[i], 32);
+        res += INT32_BIT_COUNT(bitmask[i]);
     }
 
     //last partial int
@@ -378,7 +364,7 @@ uint32_t trie_add(uint8_t string[], uint32_t parent_id, trie_s *trie) {
         parent_id = trie_char_add(parent_id, indexes[i], trie);
     }
     //add last char flag for the last char
-    trie->nodes[parent_id].mask[0] = BIT_SET(trie->nodes[parent_id].mask[0], 1);
+    trie->nodes->data[parent_id].mask[0] = BIT_SET(trie->nodes->data[parent_id].mask[0], 1);
     return parent_id;
 }
 
@@ -390,11 +376,10 @@ uint32_t trie_char_add(uint32_t parent_id, uint8_t char_index, trie_s *trie) {
 
     //number of chars (bits) before the current char (bit) position in the alphabet
     //count the number of bits to determine the position of the char
-    pos = bit_int32_count(parent_node->mask, 1, char_index);
+    pos = bit_int32_count(parent_node->mask, 1, char_index - 1);
 
     //if char exists in the bitmask we need to get next node_s id from the references block
-    //char_index + 1 because char_index 0 is 1 bit
-    if (BIT_ARRAY_GET(parent_node->mask, char_index + 1)) {
+    if (BIT_ARRAY_GET(parent_node->mask, char_index)) {
         next_node_id = REF_GET(parent_node->ref_id, pos, trie);
     } else {
         //else we create new references block bigger than before to insert new reference
@@ -407,56 +392,51 @@ uint32_t trie_char_add(uint32_t parent_id, uint8_t char_index, trie_s *trie) {
 uint32_t node_insert_ref(uint8_t char_index, uint8_t insert_pos, node_s *parent_node, trie_s *trie) {
     //first we need to calculate allocated memory for the current node_s references
     uint32_t size = bit_int32_count(parent_node->mask, 1, MASK_BITS); //skip bit 1 (leaf flag)
-    //old reference id if at least one bit was set
+    //old reference id may need in future
     uint32_t ref_id_old = parent_node->ref_id;
-
     //new size is bigger than old by one
     int32_t size_new = size + 1;
 
     //try to get ref_id from the deallocated array
-    if (trie->deal[size_new] != NULL && trie->deal[size_new]->elements > 0) {
-        parent_node->ref_id = list_shift(trie->deal[size_new]);
+    if (trie->refs_free->data[size_new] != NULL && trie->refs_free->data[size_new]->elements > 0) {
+        parent_node->ref_id = (ref_t) list_shift(trie->refs_free->data[size_new]);
         //else allocate new ref_id
     } else {
-        parent_node->ref_id = trie->refs_increment;
-        trie->refs_increment += size_new;
+        parent_node->ref_id = trie->refs->increment;
+        trie->refs->increment += size_new;
     }
 
     //get next node_s id
-    uint32_t next_node_id = trie->nodes_increment++;
+    uint32_t next_node_id = trie->nodes->increment++;
 
 
     //if there is some memory allocated
     if (size > 0) {
 
         //save its id for the future reuse
-        trie->deal[size] = list_push(trie->deal[size], NULL, 0, ref_id_old);
+        trie->refs_free->data[size] = list_push(trie->refs_free->data[size], NULL, 0, ref_id_old);
 
         //if insert position is not from the beginning (>0) copy already saved references to the just allocated ref_id
         if (insert_pos > 0) {
             //this is the part before current char
-            memcpy(&trie->refs[parent_node->ref_id], &trie->refs[ref_id_old], insert_pos << REF_SIZE_POWER);
+            memcpy(&trie->refs->data[parent_node->ref_id], &trie->refs->data[ref_id_old], insert_pos << REF_SIZE_POWER);
         }
 
         //if there is a references after the current insert position copy them too
         if (size > insert_pos) {
-            //this is the part after current char
-            memcpy(&trie->refs[parent_node->ref_id + insert_pos + 1], &trie->refs[ref_id_old + insert_pos],
+            //this is references part after current char
+            memcpy(&trie->refs->data[parent_node->ref_id + insert_pos + 1], &trie->refs->data[ref_id_old + insert_pos],
                    (size - insert_pos) << REF_SIZE_POWER);
         }
     }
     //save current char next_node_id
-    trie->refs[parent_node->ref_id + insert_pos] = next_node_id;
+    trie->refs->data[parent_node->ref_id + insert_pos] = next_node_id;
 
 
     //now save bit to the bitmask
-    BIT_ARRAY_SET(parent_node->mask, char_index + 1);
+    BIT_ARRAY_SET(parent_node->mask, char_index);
     return next_node_id;
 
-}
-
-uint32_t ref_get(uint32_t ref_id, uint8_t pos, trie_s *trie) {
-    return trie->refs[ref_id + pos];
 }
 
 
@@ -474,10 +454,10 @@ void node_get_children(children_s *children, uint32_t node_id, trie_s *trie) {
     }
 
     //now we get children letters from the node mask
-    char_mask_get_bits_raised_pre(children->letters, (uint8_t *)parent_node->mask);
+    char_mask_get_bits_raised_pre(children->letters, (uint8_t *) parent_node->mask);
 
     //now we get children nodes
-    memcpy(children->nodes, &trie->refs[parent_node->ref_id], children->length << REF_SIZE_POWER);
+    memcpy(&children->nodes, &trie->refs->data[parent_node->ref_id], children->length << REF_SIZE_POWER);
 
 }
 
@@ -489,24 +469,27 @@ void node_traverse(words_s *words, uint32_t node_id, string_s *head, trie_s *tri
     //on the last node (leaf) save head to the res
     if (children.letters[0] == 1) {
         memcpy(&words->words[words->counter++], head->letters, head->length);
+
         //recurse call node traverse on each node_id
         for (uint32_t i = 0; i < children.length; ++i) {
             //now we need to create heads for each traverse
             string_s head2 = {};
             memcpy(&head2, head, sizeof(string_s));
-            head2.letters[head2.length++] = children.letters[i + 1] - 1;
+            head2.letters[head2.length++] = children.letters[i+1]; // +1 to skip first letter with bit 0
             node_traverse(words, children.nodes[i], &head2, trie);
         }
-    } else {
+    }else{
         //recurse call node traverse on each node_id
         for (uint32_t i = 0; i < children.length; ++i) {
             //now we need to create heads for each traverse
             string_s head2 = {};
             memcpy(&head2, head, sizeof(string_s));
-            head2.letters[head2.length++] = children.letters[i] - 1;
+            head2.letters[head2.length++] = children.letters[i];
             node_traverse(words, children.nodes[i], &head2, trie);
         }
     }
+
+
 }
 
 
@@ -545,7 +528,6 @@ void char_mask_get_bits_raised_pre(uint8_t *res, uint8_t *bitmask) {
         }
     }
 }
-
 
 
 //fill array res with raised bit of the bitmask
@@ -592,13 +574,6 @@ void precount_char_init() {
 }
 
 
-void yatrie_free(trie_s *trie) {
-    for (uint32_t i = 0; i < MAX_DEAL_SIZE; ++i) {
-        list_free(trie->deal[i]);
-    }
-    free(trie);
-}
-
 uint32_t trie_get_id(uint8_t *word, uint32_t parent_id, trie_s *trie) {
     uint8_t indexes[MAX_WORD_LENGTH] = {};
     encode_string(indexes, word);
@@ -606,11 +581,10 @@ uint32_t trie_get_id(uint8_t *word, uint32_t parent_id, trie_s *trie) {
 
     for (uint32_t i = 0; indexes[i]; ++i) {
         //if char exists in the bitmask we need to get next node_s id from the references block
-        //char_index + 1 because char_index 0 is 1 bit
-        if (LIKELY(BIT_ARRAY_GET(parent_node->mask, indexes[i] + 1))) {
+        if (LIKELY(BIT_ARRAY_GET(parent_node->mask, indexes[i]))) {
             //number of chars (bits) before the current char (bit) position in the alphabet
-            //count the number of bits to determine the position of the char
-            uint8_t pos = bit_int32_count(parent_node->mask, 1, indexes[i]);
+            //count the number of bits before char to determine its position
+            uint8_t pos = bit_int32_count(parent_node->mask, 1, indexes[i] - 1);
             parent_id = REF_GET(parent_node->ref_id, pos, trie);
             parent_node = NODE_GET(parent_id, trie);
         } else {
@@ -623,23 +597,149 @@ uint32_t trie_get_id(uint8_t *word, uint32_t parent_id, trie_s *trie) {
 size_t yatrie_save(uint8_t *filepath, trie_s *trie) {
     FILE *file;
     file = fopen(filepath, "w");
-    fwrite(&trie->nodes_increment, 1, sizeof(trie->nodes_increment), file);
-    fwrite(&trie->refs_increment, 1, sizeof(trie->refs_increment), file);
-    fwrite(trie->nodes, 1, sizeof(node_s) * trie->nodes_increment, file);
-    fwrite(trie->refs, 1, REF_SIZE * trie->refs_increment, file);
+
+    //refs_free block prepare
+    ref_t ref_ids[1000];
+    uint32_t j = 0;
+    for (int i = 0; i < trie->refs_free->size; ++i) {
+        if (trie->refs_free->data[i] != NULL) {
+            while(trie->refs_free->data[i]->elements > 0){
+                ref_ids[j++] = (ref_t)list_shift(trie->refs_free->data[i]);
+            }
+            //terminator
+            ref_ids[j++] = '-';
+        }
+    }
+    trie->refs_free->disk_size = j * sizeof(ref_t);
+
+
+    //trie structure
+    fwrite(trie, sizeof(trie_s), 1, file);
+
+    //refs_free_s *refs_free;
+    fwrite(trie->refs_free, sizeof(refs_free_s), 1, file);
+
+    //nodes_s *nodes;
+    fwrite(trie->nodes, sizeof(nodes_s), 1, file);
+
+    //refs_s *refs;
+    fwrite(trie->refs, sizeof(refs_s), 1, file);
+
+    //data
+    fwrite(trie->nodes, sizeof(nodes_s) + trie->nodes->size * sizeof(node_s), 1, file);
+    fwrite(trie->refs, sizeof(refs_s) + trie->refs->size * sizeof(ref_t), 1, file);
+    fwrite(&ref_ids, trie->refs_free->disk_size, 1, file);
+
+    //list_s *nodes_free;
+    /* Todo: extract data from linked lists (nodes_free refs_free) and fwrite it*/
+
     size_t size = sizeof(file);
     fclose(file);
     return size;
 }
 
-void yatrie_load(uint8_t *filepath, trie_s *trie) {
+trie_s *yatrie_load(uint8_t *filepath) {
     FILE *file;
     file = fopen(filepath, "r");
-    fread(&trie->nodes_increment, 1, sizeof(trie->nodes_increment), file);
-    fread(&trie->refs_increment, 1, sizeof(trie->refs_increment), file);
-    fread(trie->nodes, 1, sizeof(node_s) * trie->nodes_increment, file);
-    fread(trie->refs, 1, REF_SIZE * trie->refs_increment, file);
+    //1 allocate trie_s memory
+    trie_s *trie = (trie_s *) malloc(sizeof(trie_s));
+    //trie_s *trie;
+    fread(trie, sizeof(trie_s), 1, file);
+    //refs_free_s *refs_free;
+    refs_free_s refs_free_tmp = {};
+    fread(&refs_free_tmp, sizeof(refs_free_s), 1, file);
+    //nodes_s *nodes;
+    nodes_s nodes_tmp = {};
+    fread(&nodes_tmp, sizeof(nodes_s), 1, file);
+    //refs_s *refs;
+    refs_s refs_tmp = {};
+    fread(&refs_tmp, sizeof(refs_s), 1, file);
+
+    //load with data
+    //3 allocate memory for nodes
+    //we use calloc() because we need clear mask on new nodes
+    trie->nodes = (nodes_s *) calloc(1, sizeof(nodes_s) + sizeof(node_s) * nodes_tmp.size);
+    fread(trie->nodes, sizeof(nodes_s) + sizeof(node_s) * nodes_tmp.size, 1, file);
+
+    //4 allocate memory for refs
+    trie->refs = (refs_s *) malloc(sizeof(refs_s) + sizeof(ref_t) * refs_tmp.size);
+    fread(trie->refs, sizeof(refs_s) + sizeof(ref_t) * refs_tmp.size, 1, file);
+
+    //2 allocate memory for deallocated refs block
+    trie->refs_free = (refs_free_s *) calloc(1, sizeof(refs_free_s) + sizeof(list_s *) * refs_free_tmp.size);
+
+    //refs_free block prepare
+    ref_t ref_ids[1000]; //array to read data from disk
+    fread(&ref_ids, refs_free_tmp.disk_size, 1, file);
+
+    uint32_t last = refs_free_tmp.disk_size / sizeof(ref_t); //last used index
+    uint32_t len = 0; //reference block length
+    //cycle array, on each '-' sign increment len
+    for (int i = 0; i < last ; ++i) {
+        if(UNLIKELY(ref_ids[i] != '-')){
+             list_push(trie->refs_free->data[len], NULL, 0, ref_ids[i]);
+        }else{
+            ++len;
+        }
+    }
+
+
+    /* Todo: nodes_free load*/
     fclose(file);
+    return trie;
+}
+
+
+//create new trie
+trie_s *yatrie_new(uint32_t max_nodes, uint32_t max_refs, uint32_t max_deallocated_size) {
+    //1 allocate trie_s memory
+    trie_s *trie = (trie_s *) malloc(sizeof(trie_s));
+
+    //2 allocate memory for deallocated refs block
+    refs_free_s *refs_free = (refs_free_s *) (calloc(1, sizeof(refs_free_s) + sizeof(list_s *) * max_deallocated_size));
+    refs_free->size = max_deallocated_size;
+
+    //3 allocate memory for nodes
+    //we use calloc() because we need clear mask on new nodes
+    nodes_s *nodes = (nodes_s *) (calloc(1, sizeof(nodes_s) + sizeof(node_s) * max_nodes));
+    nodes->size = max_nodes;
+    nodes->increment = 1; //node 0 is the root node
+
+    //4 allocate memory for refs
+    refs_s *refs = (refs_s *) (malloc(sizeof(refs_s) + sizeof(ref_t) * max_refs));
+    refs->size = max_refs;
+    refs->increment = 0;
+
+
+    //assign allocated structures to the trie structure
+    trie->nodes = nodes;
+    trie->refs = refs;
+    trie->refs_free = refs_free;
+
+    return trie;
+}
+
+void yatrie_free(trie_s *trie) {
+    if (UNLIKELY(trie == NULL)) {
+        return;
+    }
+
+    //2 deallocate memory for deallocated refs block
+    for (uint32_t i = 0; i < trie->refs_free->size; ++i) {
+        list_free(trie->refs_free->data[i]);
+    }
+    free(trie->refs_free);
+
+    //4 deallocate memory for refs
+    free(trie->refs);
+
+    //3 deallocate memory for nodes
+    free(trie->nodes);
+
+    //1 deallocate trie_s memory
+    free(trie);
+    trie = NULL;
+    return;
 }
 
 //fill res array with the bits of the bitmask big-endian order (from the higher bit to the lower)
@@ -648,4 +748,3 @@ void char_mask_get_bits(uint8_t res[], uint8_t bitmask) {
         *res++ = bitmask >> i & 1;
     }
 }
-

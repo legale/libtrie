@@ -1,4 +1,4 @@
-# 31.11.2018 v0.0.2
+# 01.12.2018 v0.0.2
 - precount_init() function to fill uint8_t precount[256] array removed. Now array is declared as const and
 initialized during definition.
 - int32_bit_count() function improved. there is new uint8_t precount16[65536] array with precounted bits for 2-bytes word.
@@ -8,3 +8,8 @@ Now counting is performed in 2 steps (4 steps before).
 - LIKELY(), UNLIKELY() macros added.
 - CHAR_BIT_COUNT(), INT32_BIT_COUNT() macros added.
 - BIT_ARRAY_GET() BIT_ARRAY_SET() macros added.
+
+# 0.1.0
+- trie_s structure rewritten almost completely. added separate flexible size structures nodes_s block, refs_s block, refs_free_s block.
+- changes mapping letter index and bit number. Now they are the same, before index + 1 = bit number.
+- minor refactoring.

@@ -187,7 +187,7 @@ static int test_transcode_string() {
     uint8_t dst[256] = {};
     encode_string(dst, src);
     for (int i = 0; i < 33 + 10; ++i) { //10 digits + 33 letters
-        U_ASSERT(res, dst[i] == i + 1); //+1 because index 0 is used by leaf flag
+        U_ASSERT(res, dst[i] == i + 2); //+2 because index 0 is not used, index 1 used by leaf flag
     }
 
     return res;
@@ -196,239 +196,238 @@ static int test_transcode_string() {
 static int test_node_insert_ref() {
     int res = 0;
     //create trie
-    trie_s *trie = (trie_s *) calloc(1, sizeof(trie_s));
-    //create empty root node_s
-    trie->nodes_increment++;
+    trie_s *trie = yatrie_new(100, 100, 100);
+
 
     //now we save leaf flag to the root node to check if refs block memory allocation is working good
-    trie->nodes[0].mask[0] = 0b1;
+    trie->nodes->data[0].mask[0] = 0b1;
 
     //node 1 save char index 7 node_s id 0
-    uint32_t node_id_bit8 = node_insert_ref(7, 0, &trie->nodes[0], trie);
+    uint32_t node_id_bit8 = node_insert_ref(7, 0, &trie->nodes->data[0], trie);
     //check refs block memory allocation
-    U_ASSERT(res, trie->refs_increment == 1); //expected 1 because we have just used ref_id 0
+    U_ASSERT(res, trie->refs->increment == 1); //expected 1 because we have just used ref_id 0
     //check mask
-    U_ASSERT(res, trie->nodes[0].mask[0] == 0b10000001); //bit 8 and bit 1 raised expected
+    U_ASSERT(res, trie->nodes->data[0].mask[0] == 0b1000001); //bit 7 and bit 1 raised expected
     //check refs block directly
-    U_ASSERT(res, trie->refs[0] == node_id_bit8);
+    U_ASSERT(res, trie->refs->data[0] == node_id_bit8);
     //check refs block from the node_s ref_id
-    U_ASSERT(res, trie->refs[trie->nodes[0].ref_id] == node_id_bit8);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[0].ref_id] == node_id_bit8);
 
     //node 2 save char index 6 node_s id 0
-    uint32_t node_id_bit7 = node_insert_ref(6, 0, &trie->nodes[0], trie);
+    uint32_t node_id_bit7 = node_insert_ref(6, 0, &trie->nodes->data[0], trie);
     //check refs block memory allocation
-    U_ASSERT(res, trie->refs_increment == 3); //expected 3 because allocated block size is 2 (from 1 to 2)
+    U_ASSERT(res, trie->refs->increment == 3); //expected 3 because allocated block size is 2 (from 1 to 2)
     //check mask
-    U_ASSERT(res, trie->nodes[0].mask[0] == 0b11000001); //bit 8, 7, 1 raised expected
+    U_ASSERT(res, trie->nodes->data[0].mask[0] == 0b1100001); //bit  7, 6. 1 raised expected
     //check refs block directly
-    U_ASSERT(res, trie->refs[1] == node_id_bit7);
-    U_ASSERT(res, trie->refs[2] == node_id_bit8);
+    U_ASSERT(res, trie->refs->data[1] == node_id_bit7);
+    U_ASSERT(res, trie->refs->data[2] == node_id_bit8);
     //check refs block from the node_s ref_id
-    U_ASSERT(res, trie->refs[trie->nodes[0].ref_id] == node_id_bit7);
-    U_ASSERT(res, trie->refs[trie->nodes[0].ref_id + 1] == node_id_bit8);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[0].ref_id] == node_id_bit7);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[0].ref_id + 1] == node_id_bit8);
 
     //node 3 save char index 5 node_s id 0
-    uint32_t node_id_bit6 = node_insert_ref(5, 0, &trie->nodes[0], trie);
+    uint32_t node_id_bit6 = node_insert_ref(5, 0, &trie->nodes->data[0], trie);
     //check refs block memory allocation
-    U_ASSERT(res, trie->refs_increment == 6); //expected 6 because allocated block size is 3 (from 3 to 5)
+    U_ASSERT(res, trie->refs->increment == 6); //expected 6 because allocated block size is 3 (from 3 to 5)
     //check mask
-    U_ASSERT(res, trie->nodes[0].mask[0] == 0b11100001); //bit 8, 7, 6, 1 raised expected
+    U_ASSERT(res, trie->nodes->data[0].mask[0] == 0b1110001); //bit 7, 6, 5, 1 raised expected
     //check refs block directly
-    U_ASSERT(res, trie->refs[3] == node_id_bit6);
-    U_ASSERT(res, trie->refs[4] == node_id_bit7);
-    U_ASSERT(res, trie->refs[5] == node_id_bit8);
+    U_ASSERT(res, trie->refs->data[3] == node_id_bit6);
+    U_ASSERT(res, trie->refs->data[4] == node_id_bit7);
+    U_ASSERT(res, trie->refs->data[5] == node_id_bit8);
     //check refs block from the node_s ref_id
-    U_ASSERT(res, trie->refs[trie->nodes[0].ref_id] == node_id_bit6);
-    U_ASSERT(res, trie->refs[trie->nodes[0].ref_id + 1] == node_id_bit7);
-    U_ASSERT(res, trie->refs[trie->nodes[0].ref_id + 2] == node_id_bit8);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[0].ref_id] == node_id_bit6);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[0].ref_id + 1] == node_id_bit7);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[0].ref_id + 2] == node_id_bit8);
 
 
-    //node 4 save char index 1 node_s id 0
-    uint32_t node_id_bit2 = node_insert_ref(1, 0, &trie->nodes[0], trie);
+    //node 4 save char index 2 node_s id 0
+    uint32_t node_id_bit2 = node_insert_ref(2, 0, &trie->nodes->data[0], trie);
     //check refs block memory allocation
-    U_ASSERT(res, trie->refs_increment == 10); //expected 10 because allocated block size is 4 (from 6 to 9)
+    U_ASSERT(res, trie->refs->increment == 10); //expected 10 because allocated block size is 4 (from 6 to 9)
     //check mask
-    U_ASSERT(res, trie->nodes[0].mask[0] == 0b11100011); //bit 8, 7, 6, 2, 1 raised expected
+    U_ASSERT(res, trie->nodes->data[0].mask[0] == 0b1110011); //bit 7, 6, 5, 2, 1 raised expected
     //check refs block directly
-    U_ASSERT(res, trie->refs[6] == node_id_bit2);
-    U_ASSERT(res, trie->refs[7] == node_id_bit6);
-    U_ASSERT(res, trie->refs[8] == node_id_bit7);
-    U_ASSERT(res, trie->refs[9] == node_id_bit8);
+    U_ASSERT(res, trie->refs->data[6] == node_id_bit2);
+    U_ASSERT(res, trie->refs->data[7] == node_id_bit6);
+    U_ASSERT(res, trie->refs->data[8] == node_id_bit7);
+    U_ASSERT(res, trie->refs->data[9] == node_id_bit8);
     //check refs block from the node_s ref_id
-    U_ASSERT(res, trie->refs[trie->nodes[0].ref_id] == node_id_bit2);
-    U_ASSERT(res, trie->refs[trie->nodes[0].ref_id + 1] == node_id_bit6);
-    U_ASSERT(res, trie->refs[trie->nodes[0].ref_id + 2] == node_id_bit7);
-    U_ASSERT(res, trie->refs[trie->nodes[0].ref_id + 3] == node_id_bit8);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[0].ref_id] == node_id_bit2);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[0].ref_id + 1] == node_id_bit6);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[0].ref_id + 2] == node_id_bit7);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[0].ref_id + 3] == node_id_bit8);
 
-    //node 5 save char index 2 node_s id 0 just after char index 1 (pos 1)
-    uint32_t node_id_bit3 = node_insert_ref(2, 1, &trie->nodes[0], trie);
+    //node 5 save char index 3 node_s id 0 just after char index 1 (pos 1)
+    uint32_t node_id_bit3 = node_insert_ref(3, 1, &trie->nodes->data[0], trie);
     //check refs block memory allocation
-    U_ASSERT(res, trie->refs_increment == 15); //expected 15 because allocated block size is 5 (from 10 to 14)
+    U_ASSERT(res, trie->refs->increment == 15); //expected 15 because allocated block size is 5 (from 10 to 14)
     //check mask
-    U_ASSERT(res, trie->nodes[0].mask[0] == 0b11100111); //bit 8, 7, 6, 3, 2, 1 raised expected
+    U_ASSERT(res, trie->nodes->data[0].mask[0] == 0b1110111); //bit 7, 6, 5, 3, 2, 1 raised expected
     //check refs block directly
-    U_ASSERT(res, trie->refs[10] == node_id_bit2);
-    U_ASSERT(res, trie->refs[11] == node_id_bit3);
-    U_ASSERT(res, trie->refs[12] == node_id_bit6);
-    U_ASSERT(res, trie->refs[13] == node_id_bit7);
-    U_ASSERT(res, trie->refs[14] == node_id_bit8);
+    U_ASSERT(res, trie->refs->data[10] == node_id_bit2);
+    U_ASSERT(res, trie->refs->data[11] == node_id_bit3);
+    U_ASSERT(res, trie->refs->data[12] == node_id_bit6);
+    U_ASSERT(res, trie->refs->data[13] == node_id_bit7);
+    U_ASSERT(res, trie->refs->data[14] == node_id_bit8);
     //check refs block from the node_s ref_id
-    U_ASSERT(res, trie->refs[trie->nodes[0].ref_id] == node_id_bit2);
-    U_ASSERT(res, trie->refs[trie->nodes[0].ref_id + 1] == node_id_bit3);
-    U_ASSERT(res, trie->refs[trie->nodes[0].ref_id + 2] == node_id_bit6);
-    U_ASSERT(res, trie->refs[trie->nodes[0].ref_id + 3] == node_id_bit7);
-    U_ASSERT(res, trie->refs[trie->nodes[0].ref_id + 4] == node_id_bit8);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[0].ref_id] == node_id_bit2);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[0].ref_id + 1] == node_id_bit3);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[0].ref_id + 2] == node_id_bit6);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[0].ref_id + 3] == node_id_bit7);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[0].ref_id + 4] == node_id_bit8);
 
     //node 6 char index 94 node_s id 0
-    uint32_t node_id_bit95 = node_insert_ref(94, 5, &trie->nodes[0], trie);
+    uint32_t node_id_bit94 = node_insert_ref(94, 5, &trie->nodes->data[0], trie);
     //check refs block memory allocation
-    U_ASSERT(res, trie->refs_increment == 21); //expected 21 because allocated block size is 6 (from 15 to 20)
+    U_ASSERT(res, trie->refs->increment == 21); //expected 21 because allocated block size is 6 (from 15 to 20)
     //check mask
-    U_ASSERT(res, trie->nodes[0].mask[0] == 0b11100111); //bit 8, 7, 6, 3, 2, 1 raised expected
-    U_ASSERT(res, trie->nodes[0].mask[2] == 0b1000000000000000000000000000000); //bit 31 raised expected (index 2 * 32 + 31 = 95)
+    U_ASSERT(res, trie->nodes->data[0].mask[0] == 0b1110111); //bit 7, 6, 5, 3, 2, 1 raised expected
+    U_ASSERT(res, trie->nodes->data[0].mask[2] == 0b100000000000000000000000000000); //bit 30 raised expected (index 2 * 32 + 30 = 94)
     //check refs block directly
-    U_ASSERT(res, trie->refs[15] == node_id_bit2);
-    U_ASSERT(res, trie->refs[16] == node_id_bit3);
-    U_ASSERT(res, trie->refs[17] == node_id_bit6);
-    U_ASSERT(res, trie->refs[18] == node_id_bit7);
-    U_ASSERT(res, trie->refs[19] == node_id_bit8);
-    U_ASSERT(res, trie->refs[20] == node_id_bit95);
+    U_ASSERT(res, trie->refs->data[15] == node_id_bit2);
+    U_ASSERT(res, trie->refs->data[16] == node_id_bit3);
+    U_ASSERT(res, trie->refs->data[17] == node_id_bit6);
+    U_ASSERT(res, trie->refs->data[18] == node_id_bit7);
+    U_ASSERT(res, trie->refs->data[19] == node_id_bit8);
+    U_ASSERT(res, trie->refs->data[20] == node_id_bit94);
     //check refs block from the node_s ref_id
-    U_ASSERT(res, trie->refs[trie->nodes[0].ref_id] == node_id_bit2);
-    U_ASSERT(res, trie->refs[trie->nodes[0].ref_id + 1] == node_id_bit3);
-    U_ASSERT(res, trie->refs[trie->nodes[0].ref_id + 2] == node_id_bit6);
-    U_ASSERT(res, trie->refs[trie->nodes[0].ref_id + 3] == node_id_bit7);
-    U_ASSERT(res, trie->refs[trie->nodes[0].ref_id + 4] == node_id_bit8);
-    U_ASSERT(res, trie->refs[trie->nodes[0].ref_id + 5] == node_id_bit95);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[0].ref_id] == node_id_bit2);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[0].ref_id + 1] == node_id_bit3);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[0].ref_id + 2] == node_id_bit6);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[0].ref_id + 3] == node_id_bit7);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[0].ref_id + 4] == node_id_bit8);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[0].ref_id + 5] == node_id_bit94);
 
-    //node 7 char index 32 node_s id 0
-    uint32_t node_id_bit33 = node_insert_ref(32, 5, &trie->nodes[0], trie);
+    //node 7 char index 33 node_s id 0
+    uint32_t node_id_bit33 = node_insert_ref(33, 5, &trie->nodes->data[0], trie);
     //check refs block memory allocation
-    U_ASSERT(res, trie->refs_increment == 28); //expected 28 because allocated block size is 7 (from 21 to 27)
+    U_ASSERT(res, trie->refs->increment == 28); //expected 28 because allocated block size is 7 (from 21 to 27)
     //check mask
-    U_ASSERT(res, trie->nodes[0].mask[0] == 0b11100111); //bit 8, 7, 6, 3, 2, 1 raised expected
-    U_ASSERT(res, trie->nodes[0].mask[2] == 0b1000000000000000000000000000000); //bit 31 raised expected (index 2 * 32 + 31 = 95)
-    U_ASSERT(res, trie->nodes[0].mask[1] == 0b1); //bit 1 raised expected (index 1 * 32 + 1 = 33)
+    U_ASSERT(res, trie->nodes->data[0].mask[0] == 0b1110111); //bit 7, 6, 5, 3, 2, 1 raised expected
+    U_ASSERT(res, trie->nodes->data[0].mask[2] == 0b100000000000000000000000000000); //bit 30 raised expected (index 2 * 32 + 30 = 94)
+    U_ASSERT(res, trie->nodes->data[0].mask[1] == 0b1); //bit 1 raised expected (index 1 * 32 + 1 = 33)
     //check refs block directly
-    U_ASSERT(res, trie->refs[21] == node_id_bit2);
-    U_ASSERT(res, trie->refs[22] == node_id_bit3);
-    U_ASSERT(res, trie->refs[23] == node_id_bit6);
-    U_ASSERT(res, trie->refs[24] == node_id_bit7);
-    U_ASSERT(res, trie->refs[25] == node_id_bit8);
-    U_ASSERT(res, trie->refs[26] == node_id_bit33);
-    U_ASSERT(res, trie->refs[27] == node_id_bit95);
+    U_ASSERT(res, trie->refs->data[21] == node_id_bit2);
+    U_ASSERT(res, trie->refs->data[22] == node_id_bit3);
+    U_ASSERT(res, trie->refs->data[23] == node_id_bit6);
+    U_ASSERT(res, trie->refs->data[24] == node_id_bit7);
+    U_ASSERT(res, trie->refs->data[25] == node_id_bit8);
+    U_ASSERT(res, trie->refs->data[26] == node_id_bit33);
+    U_ASSERT(res, trie->refs->data[27] == node_id_bit94);
     //check refs block from the node_s ref_id
-    U_ASSERT(res, trie->refs[trie->nodes[0].ref_id] == node_id_bit2);
-    U_ASSERT(res, trie->refs[trie->nodes[0].ref_id + 1] == node_id_bit3);
-    U_ASSERT(res, trie->refs[trie->nodes[0].ref_id + 2] == node_id_bit6);
-    U_ASSERT(res, trie->refs[trie->nodes[0].ref_id + 3] == node_id_bit7);
-    U_ASSERT(res, trie->refs[trie->nodes[0].ref_id + 4] == node_id_bit8);
-    U_ASSERT(res, trie->refs[trie->nodes[0].ref_id + 5] == node_id_bit33);
-    U_ASSERT(res, trie->refs[trie->nodes[0].ref_id + 6] == node_id_bit95);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[0].ref_id] == node_id_bit2);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[0].ref_id + 1] == node_id_bit3);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[0].ref_id + 2] == node_id_bit6);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[0].ref_id + 3] == node_id_bit7);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[0].ref_id + 4] == node_id_bit8);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[0].ref_id + 5] == node_id_bit33);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[0].ref_id + 6] == node_id_bit94);
 
 
 
     //deallocated memory block reallocation test
-    //node 8 char index 1 in the node 1
-    U_ASSERT(res, trie->deal[1]->elements == 1); //expected 1
-    uint32_t node8_bit2 = node_insert_ref(1, 0, &trie->nodes[1], trie);
-    U_ASSERT(res, trie->deal[1]->elements == 0); //expected 0
+    //node 8 char index 2 in the node 1
+    U_ASSERT(res, trie->refs_free->data[1]->elements == 1); //expected 1
+    uint32_t node8_bit2 = node_insert_ref(2, 0, &trie->nodes->data[1], trie);
+    U_ASSERT(res, trie->refs_free->data[1]->elements == 0); //expected 0
     //check refs block memory allocation
-    U_ASSERT(res, trie->refs_increment == 28); //expected 28 because allocated block size is 7 (from 21 to 27)
+    U_ASSERT(res, trie->refs->increment == 28); //expected 28 because allocated block size is 7 (from 21 to 27)
     //check mask
-    U_ASSERT(res, trie->nodes[1].mask[0] == 0b10); //bit 2 raised expected
+    U_ASSERT(res, trie->nodes->data[1].mask[0] == 0b10); //bit 2 raised expected
     //check refs block from the node_s ref_id
-    U_ASSERT(res, trie->refs[trie->nodes[1].ref_id] == node8_bit2);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[1].ref_id] == node8_bit2);
 
 
-    //node 9 char index 2 pos 1 in the node 1
-    U_ASSERT(res, trie->deal[2]->elements == 1); //expected 1
-    uint32_t node9_bit3 = node_insert_ref(2, 1, &trie->nodes[1], trie);
-    U_ASSERT(res, trie->deal[1]->elements == 1); //expected 1
-    U_ASSERT(res, trie->deal[2]->elements == 0); //expected 0
+    //node 9 char index 3 pos 1 in the node 1
+    U_ASSERT(res, trie->refs_free->data[2]->elements == 1); //expected 1
+    uint32_t node9_bit3 = node_insert_ref(3, 1, &trie->nodes->data[1], trie);
+    U_ASSERT(res, trie->refs_free->data[1]->elements == 1); //expected 1
+    U_ASSERT(res, trie->refs_free->data[2]->elements == 0); //expected 0
     //check refs block memory allocation
-    U_ASSERT(res, trie->refs_increment == 28); //expected 28 because allocated block size is 7 (from 21 to 27)
+    U_ASSERT(res, trie->refs->increment == 28); //expected 28 because allocated block size is 7 (from 21 to 27)
     //check mask
-    U_ASSERT(res, trie->nodes[1].mask[0] == 0b110); //bit 2,3 raised expected
+    U_ASSERT(res, trie->nodes->data[1].mask[0] == 0b110); //bit 2,3 raised expected
     //check refs block from the node_s ref_id
-    U_ASSERT(res, trie->refs[trie->nodes[1].ref_id] == node8_bit2);
-    U_ASSERT(res, trie->refs[trie->nodes[1].ref_id + 1] == node9_bit3);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[1].ref_id] == node8_bit2);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[1].ref_id + 1] == node9_bit3);
 
 
-    //node 10 char index 3 pos 2 in the node 1
-    U_ASSERT(res, trie->deal[3]->elements == 1); //expected 1
-    uint32_t node10_bit4 = node_insert_ref(3, 2, &trie->nodes[1], trie);
-    U_ASSERT(res, trie->deal[2]->elements == 1); //expected 1
-    U_ASSERT(res, trie->deal[3]->elements == 0); //expected 0
+    //node 10 char index 4 pos 2 in the node 1
+    U_ASSERT(res, trie->refs_free->data[3]->elements == 1); //expected 1
+    uint32_t node10_bit4 = node_insert_ref(4, 2, &trie->nodes->data[1], trie);
+    U_ASSERT(res, trie->refs_free->data[2]->elements == 1); //expected 1
+    U_ASSERT(res, trie->refs_free->data[3]->elements == 0); //expected 0
     //check refs block memory allocation
-    U_ASSERT(res, trie->refs_increment == 28); //expected 28 because allocated block size is 7 (from 21 to 27)
+    U_ASSERT(res, trie->refs->increment == 28); //expected 28 because allocated block size is 7 (from 21 to 27)
     //check mask
-    U_ASSERT(res, trie->nodes[1].mask[0] == 0b1110); //bit 2,3,4 raised expected
+    U_ASSERT(res, trie->nodes->data[1].mask[0] == 0b1110); //bit 2,3,4 raised expected
     //check refs block from the node_s ref_id
-    U_ASSERT(res, trie->refs[trie->nodes[1].ref_id] == node8_bit2);
-    U_ASSERT(res, trie->refs[trie->nodes[1].ref_id + 1] == node9_bit3);
-    U_ASSERT(res, trie->refs[trie->nodes[1].ref_id + 2] == node10_bit4);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[1].ref_id] == node8_bit2);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[1].ref_id + 1] == node9_bit3);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[1].ref_id + 2] == node10_bit4);
 
 
-    //node 11 char index 4 pos 3 in the node 1
-    U_ASSERT(res, trie->deal[4]->elements == 1); //expected 1
-    uint32_t node11_bit5 = node_insert_ref(4, 3, &trie->nodes[1], trie);
-    U_ASSERT(res, trie->deal[3]->elements == 1); //expected 1
-    U_ASSERT(res, trie->deal[4]->elements == 0); //expected 0
+    //node 11 char index 5 pos 3 in the node 1
+    U_ASSERT(res, trie->refs_free->data[4]->elements == 1); //expected 1
+    uint32_t node11_bit5 = node_insert_ref(5, 3, &trie->nodes->data[1], trie);
+    U_ASSERT(res, trie->refs_free->data[3]->elements == 1); //expected 1
+    U_ASSERT(res, trie->refs_free->data[4]->elements == 0); //expected 0
     //check refs block memory allocation
-    U_ASSERT(res, trie->refs_increment == 28); //expected 28 because allocated block size is 7 (from 21 to 27)
+    U_ASSERT(res, trie->refs->increment == 28); //expected 28 because allocated block size is 7 (from 21 to 27)
     //check mask
-    U_ASSERT(res, trie->nodes[1].mask[0] == 0b11110); //bit 2,3,4,5 raised expected
+    U_ASSERT(res, trie->nodes->data[1].mask[0] == 0b11110); //bit 2,3,4,5 raised expected
     //check refs block from the node_s ref_id
-    U_ASSERT(res, trie->refs[trie->nodes[1].ref_id] == node8_bit2);
-    U_ASSERT(res, trie->refs[trie->nodes[1].ref_id + 1] == node9_bit3);
-    U_ASSERT(res, trie->refs[trie->nodes[1].ref_id + 2] == node10_bit4);
-    U_ASSERT(res, trie->refs[trie->nodes[1].ref_id + 3] == node11_bit5);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[1].ref_id] == node8_bit2);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[1].ref_id + 1] == node9_bit3);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[1].ref_id + 2] == node10_bit4);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[1].ref_id + 3] == node11_bit5);
 
 
-    //node 12 char index 5 pos 4 in the node 1
-    U_ASSERT(res, trie->deal[5]->elements == 1); //expected 1
-    uint32_t node12_bit6 = node_insert_ref(5, 4, &trie->nodes[1], trie);
-    U_ASSERT(res, trie->deal[4]->elements == 1); //expected 1
-    U_ASSERT(res, trie->deal[5]->elements == 0); //expected 0
+    //node 12 char index 6 pos 4 in the node 1
+    U_ASSERT(res, trie->refs_free->data[5]->elements == 1); //expected 1
+    uint32_t node12_bit6 = node_insert_ref(6, 4, &trie->nodes->data[1], trie);
+    U_ASSERT(res, trie->refs_free->data[4]->elements == 1); //expected 1
+    U_ASSERT(res, trie->refs_free->data[5]->elements == 0); //expected 0
     //check refs block memory allocation
-    U_ASSERT(res, trie->refs_increment == 28); //expected 28 because allocated block size is 7 (from 21 to 27)
+    U_ASSERT(res, trie->refs->increment == 28); //expected 28 because allocated block size is 7 (from 21 to 27)
     //check mask
-    U_ASSERT(res, trie->nodes[1].mask[0] == 0b111110); //bit 2,3,4,5,6 raised expected
+    U_ASSERT(res, trie->nodes->data[1].mask[0] == 0b111110); //bit 2,3,4,5,6 raised expected
     //check refs block from the node_s ref_id
-    U_ASSERT(res, trie->refs[trie->nodes[1].ref_id] == node8_bit2);
-    U_ASSERT(res, trie->refs[trie->nodes[1].ref_id + 1] == node9_bit3);
-    U_ASSERT(res, trie->refs[trie->nodes[1].ref_id + 2] == node10_bit4);
-    U_ASSERT(res, trie->refs[trie->nodes[1].ref_id + 3] == node11_bit5);
-    U_ASSERT(res, trie->refs[trie->nodes[1].ref_id + 4] == node12_bit6);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[1].ref_id] == node8_bit2);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[1].ref_id + 1] == node9_bit3);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[1].ref_id + 2] == node10_bit4);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[1].ref_id + 3] == node11_bit5);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[1].ref_id + 4] == node12_bit6);
 
 
-    //node 13 char index 6 pos 5 in the node 1
-    U_ASSERT(res, trie->deal[6]->elements == 1); //expected 1
-    uint32_t node13_bit7 = node_insert_ref(6, 5, &trie->nodes[1], trie);
-    U_ASSERT(res, trie->deal[5]->elements == 1); //expected 1
-    U_ASSERT(res, trie->deal[6]->elements == 0); //expected 0
+    //node 13 char index 7 pos 5 in the node 1
+    U_ASSERT(res, trie->refs_free->data[6]->elements == 1); //expected 1
+    uint32_t node13_bit7 = node_insert_ref(7, 5, &trie->nodes->data[1], trie);
+    U_ASSERT(res, trie->refs_free->data[5]->elements == 1); //expected 1
+    U_ASSERT(res, trie->refs_free->data[6]->elements == 0); //expected 0
     //check refs block memory allocation
-    U_ASSERT(res, trie->refs_increment == 28); //expected 28 because allocated block size is 7 (from 21 to 27)
+    U_ASSERT(res, trie->refs->increment == 28); //expected 28 because allocated block size is 7 (from 21 to 27)
     //check mask
-    U_ASSERT(res, trie->nodes[1].mask[0] == 0b1111110); //bit 2,3,4,5,6,7 raised expected
+    U_ASSERT(res, trie->nodes->data[1].mask[0] == 0b1111110); //bit 2,3,4,5,6,7 raised expected
     //check refs block from the node_s ref_id
-    U_ASSERT(res, trie->refs[trie->nodes[1].ref_id] == node8_bit2);
-    U_ASSERT(res, trie->refs[trie->nodes[1].ref_id + 1] == node9_bit3);
-    U_ASSERT(res, trie->refs[trie->nodes[1].ref_id + 2] == node10_bit4);
-    U_ASSERT(res, trie->refs[trie->nodes[1].ref_id + 3] == node11_bit5);
-    U_ASSERT(res, trie->refs[trie->nodes[1].ref_id + 4] == node12_bit6);
-    U_ASSERT(res, trie->refs[trie->nodes[1].ref_id + 5] == node13_bit7);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[1].ref_id] == node8_bit2);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[1].ref_id + 1] == node9_bit3);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[1].ref_id + 2] == node10_bit4);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[1].ref_id + 3] == node11_bit5);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[1].ref_id + 4] == node12_bit6);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[1].ref_id + 5] == node13_bit7);
 
 
     //node 0
-    U_ASSERT(res, trie->refs[trie->nodes[0].ref_id] == node_id_bit2);
-    U_ASSERT(res, trie->refs[trie->nodes[0].ref_id + 1] == node_id_bit3);
-    U_ASSERT(res, trie->refs[trie->nodes[0].ref_id + 2] == node_id_bit6);
-    U_ASSERT(res, trie->refs[trie->nodes[0].ref_id + 3] == node_id_bit7);
-    U_ASSERT(res, trie->refs[trie->nodes[0].ref_id + 4] == node_id_bit8);
-    U_ASSERT(res, trie->refs[trie->nodes[0].ref_id + 5] == node_id_bit33);
-    U_ASSERT(res, trie->refs[trie->nodes[0].ref_id + 6] == node_id_bit95);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[0].ref_id] == node_id_bit2);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[0].ref_id + 1] == node_id_bit3);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[0].ref_id + 2] == node_id_bit6);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[0].ref_id + 3] == node_id_bit7);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[0].ref_id + 4] == node_id_bit8);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[0].ref_id + 5] == node_id_bit33);
+    U_ASSERT(res, trie->refs->data[trie->nodes->data[0].ref_id + 6] == node_id_bit94);
 
 
     yatrie_free(trie);
@@ -438,10 +437,8 @@ static int test_node_insert_ref() {
 static int test_trie_char_add() {
     int res = 0;
     //create trie
-    trie_s *trie = (trie_s *) calloc(1, sizeof(trie_s));
+    trie_s *trie = yatrie_new(500, 500, 100);
 
-    //create empty root node_s
-    trie->nodes_increment++;
 
     uint32_t node_id_inserted;
 
@@ -469,14 +466,13 @@ static int test_trie_char_add() {
 static int test_trie_add() {
     int res = 0;
     //create trie
-    trie_s *trie = (trie_s *) calloc(1, sizeof(trie_s));
-    //create empty root node_s
-    trie->nodes_increment++;
+    trie_s *trie = yatrie_new(9000, 9000, 9000);
+
 
     uint32_t inserted[2][96] = {};
 
 
-    uint32_t nodes[5000] = {};
+    uint32_t nodes_ids[5000] = {};
     int c = 0;
     uint8_t string[512] = {};
     FILE *file;
@@ -484,7 +480,7 @@ static int test_trie_add() {
     if (file) {
         for (int j = 0, i = 0; (c = getc(file)) != EOF; ++j) {
             if (c == '\n' || c == '\r') {
-                nodes[i] = trie_add(string, 0, trie);
+                nodes_ids[i] = trie_add(string, 0, trie);
                 memset(string, 0, 512);
                 j = -1;
                 ++i;
@@ -498,7 +494,7 @@ static int test_trie_add() {
 
         for (int j = 0, i = 0; (c = getc(file)) != EOF; ++j) {
             if (c == '\n' || c == '\r') {
-                U_ASSERT(res, trie_get_id(string, 0, trie) == nodes[i]);
+                U_ASSERT(res, trie_get_id(string, 0, trie) == nodes_ids[i]);
                 memset(string, 0, 512);
                 j = -1;
                 ++i;
@@ -643,18 +639,17 @@ static int test_mask_get_bits_raised_pre() {
 static int test_node_get_children() {
     int res = 0;
 
-    trie_s *trie = (trie_s *) calloc(1, sizeof(trie_s));
-    //create empty root node_s
-    trie->nodes_increment++;
+    trie_s *trie = yatrie_new(500, 500, 100);
+
 
     //add some data to the root node
-    trie->nodes[0].mask[0] = 0b10111; //raise bits 2,3,5
-    trie->nodes[0].ref_id = 0; //save ref_id
+    trie->nodes->data[0].mask[0] = 0b10111; //raise bits 2,3,5
+    trie->nodes->data[0].ref_id = 0; //save ref_id
     uint8_t expected11[MASK_BITS] = {1, 2, 3, 5}; //raise bits 2,3,4
     uint32_t expected12[MASK_BITS] = {1111, 2222, 3333}; //raise bits 2,3,4
-    trie->refs[0] = 1111; //ref_id 0
-    trie->refs[1] = 2222; //ref_id 1
-    trie->refs[2] = 3333; //ref_id 2
+    trie->refs->data[0] = 1111; //ref_id 0
+    trie->refs->data[1] = 2222; //ref_id 1
+    trie->refs->data[2] = 3333; //ref_id 2
 
     //create children container
     children_s *children = (children_s *) calloc(1, sizeof(children_s));
@@ -675,9 +670,9 @@ static int test_node_get_children() {
 static int test_node_traverse() {
     int res = 0;
 
-    trie_s *trie = (trie_s *) calloc(1, sizeof(trie_s));
-    //create empty root node_s
-    trie->nodes_increment++;
+    trie_s *trie = yatrie_new(500, 500, 200);
+
+
 
     uint8_t word[] = "ёж";
     uint32_t node_id;
@@ -726,10 +721,7 @@ static int test_node_traverse_decode() {
            "the \"leaf\" flag into chains.\n\n");
 
     //create trie
-    trie_s *trie = (trie_s *) calloc(1, sizeof(trie_s));
-    //create empty root node
-    trie->nodes_increment++;
-
+    trie_s *trie = yatrie_new(5000, 5000, 300);
 
     uint8_t words[][20] = {
             "ёж",
@@ -750,6 +742,8 @@ static int test_node_traverse_decode() {
 
     //head container
     string_s head = {};
+
+    uint32_t id = trie_get_id(words[5], 0, trie);
 
     node_traverse(words_returned, 0, &head, trie);
 
@@ -777,10 +771,11 @@ static int test_node_traverse_decode() {
 
 static int test_trie_get_id() {
     int res = 0;
-    trie_s *trie = (trie_s *) calloc(1, sizeof(trie_s));
-    trie->nodes_increment++;
+    trie_s *trie = yatrie_new(500, 500, 100);
 
-    uint32_t nodes[256] = {};
+
+
+    uint32_t nodes_ids[256] = {};
     uint8_t words[][64] = {
             "11-й",
             "11-го",
@@ -804,12 +799,12 @@ static int test_trie_get_id() {
 
 
     for (int i = 0, size = sizeof(words) / 64; i < size; ++i) {
-        nodes[i] = trie_add(words[i], 0, trie);
+        nodes_ids[i] = trie_add(words[i], 0, trie);
     }
 
 
     for (int i = 0, size = sizeof(words) / 64; i < size; ++i) {
-        U_ASSERT(res, nodes[i] = trie_get_id(words[i], 0, trie));
+        U_ASSERT(res, nodes_ids[i] = trie_get_id(words[i], 0, trie));
     }
 
 
@@ -823,8 +818,8 @@ static int complex_test() {
     time_t end = 0;
 
     uint32_t node_id = 0;
-    trie_s *trie = (trie_s *) calloc(1, sizeof(trie_s));
-    trie->nodes_increment++;
+    trie_s *trie = yatrie_new(5000000, 5000000, 200);
+
 
     printf("COMPLEX TEST\n"
            "This test will create trie from a dictionary file, \n"
@@ -885,7 +880,7 @@ static int complex_test() {
     U_ASSERT(res, memcmp(added_nodes, getted_nodes, MAX_NODES * 4) == 0);
 
     printf("trie creation time: %fs\n", (end - begin) / (float) 1000000);
-    printf("nodes created: %d\nreferences created: %d\n", trie->nodes_increment, trie->refs_increment);
+    printf("nodes created: %d\nreferences created: %d\n", trie->nodes->increment, trie->refs->increment);
 
 
     free(added_nodes);
@@ -897,7 +892,7 @@ static int complex_test() {
 
 static int test_decode_string() {
     int res = 0;
-    uint8_t src[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    uint8_t src[] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
     uint8_t dst[256] = {};
     decode_string(dst, src);
     U_ASSERT(res, memcmp(dst, "0123456789", sizeof("0123456789")) == 0);
@@ -912,9 +907,8 @@ static int test_trie_save_load() {
 
 
     int res = 0;
-    trie_s *trie = (trie_s *) calloc(1, sizeof(trie_s));
-    //create empty root node_s
-    trie->nodes_increment++;
+    trie_s *trie = yatrie_new(5000000, 5000000, 300);
+
 
     //fill trie
     int c = 0;
@@ -948,8 +942,7 @@ static int test_trie_save_load() {
     yatrie_save("/tmp/test.trie", trie);
 
 
-    trie_s *trie2 = (trie_s *) calloc(1, sizeof(trie_s));
-    yatrie_load("/tmp/test.trie", trie2);
+    trie_s *trie2 = yatrie_load("/tmp/test.trie");
 
     begin2 = clock();
     uint8_t key[] = "africa";
@@ -959,10 +952,10 @@ static int test_trie_save_load() {
     end2 = clock();
 
     //compare
-    U_ASSERT(res, trie->nodes_increment == trie2->nodes_increment); //nodes counter
-    U_ASSERT(res, trie->refs_increment == trie2->refs_increment); //refs counter
-    U_ASSERT(res, memcmp(trie->nodes, trie2->nodes, sizeof(trie->nodes)) == 0); //nodes block
-    U_ASSERT(res, memcmp(trie->refs, trie2->refs, sizeof(trie->refs)) == 0); //refs block
+    U_ASSERT(res, trie->nodes->increment == trie2->nodes->increment); //nodes counter
+    U_ASSERT(res, trie->refs->increment == trie2->refs->increment); //refs counter
+    U_ASSERT(res, memcmp(trie->nodes, trie2->nodes, sizeof(nodes_s)) == 0); //nodes block
+    U_ASSERT(res, memcmp(trie->refs, trie2->refs, sizeof(refs_s)) == 0); //refs block
 
 
     printf("yatrie creation time: %fs\n", (end1 - begin1) / (float) 1000000);
@@ -982,9 +975,8 @@ static int another_node_traverse() {
     printf("\n\nANOTHER NODE TRAVERSE\n");
 
 
-    trie_s *trie = (trie_s *) calloc(1, sizeof(trie_s));
-    //create empty root node_s
-    trie->nodes_increment++;
+    trie_s *trie = yatrie_new(5000000, 5000000, 200);
+
 
     //fill trie
     int c = 0;
@@ -1051,8 +1043,17 @@ static int another_node_traverse() {
     return res;
 }
 
+static int test_yatrie_new() {
+    int res = 0;
+    trie_s *trie = yatrie_new(100, 100, 100);
+
+    return res;
+}
+
 static int all_tests() {
 //    U_RUN(test_foo);
+
+    U_RUN(test_yatrie_new);
     U_RUN(test_bit_int32_count);
     U_RUN(test_bit_get);
     U_RUN(test_bit_set);
