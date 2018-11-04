@@ -1,4 +1,4 @@
-# Libtrie v0.1.0
+# Libtrie v0.1.1
 ## Trie data structure C language implementation
 
 

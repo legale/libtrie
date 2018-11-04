@@ -1,6 +1,6 @@
 /* file: libtrie.h
  *
- * libtrie - simple Trie data structure library v0.1.9
+ * libtrie - simple Trie data structure library v0.1.1
  *
  * Copyright (C) 2018  legale.legale <legale.legale@gmail.com>
  * This software is provided under MIT license.
@@ -10,6 +10,7 @@
 #define YATRIE_LIBRARY_H
 
 #include <inttypes.h>
+#include <stddef.h>
 #include "single_list.h"
 
 //prediction macros
@@ -136,9 +137,9 @@ void precount_char_init();
 
 uint8_t char_bit_count(uint8_t i, uint8_t length);
 
-uint32_t trie_add(uint8_t string[], uint32_t parent_id, trie_s *trie);
+uint32_t yatrie_add(uint8_t *string, uint32_t parent_id, trie_s *trie);
 
-uint32_t trie_char_add(uint32_t parent_id, uint8_t char_index, trie_s *trie);
+uint32_t yatrie_char_add(uint32_t parent_id, uint8_t char_index, trie_s *trie);
 
 uint32_t node_insert_ref(uint8_t char_index, uint8_t insert_pos, node_s *parent_node, trie_s *trie);
 

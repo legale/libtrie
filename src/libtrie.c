@@ -1,6 +1,6 @@
 /* file: libtrie.c
  *
- * libtrie - simple Trie data structure library v0.1.9
+ * libtrie - simple Trie data structure library v0.1.1
  *
  * Copyright (C) 2018  legale.legale <legale.legale@gmail.com>
  * This software is provided under MIT license.
@@ -355,20 +355,20 @@ uint8_t bit_int32_count(uint32_t bitmask[], uint8_t offset, uint8_t last_bit) {
     return res;
 }
 
-uint32_t trie_add(uint8_t string[], uint32_t parent_id, trie_s *trie) {
+uint32_t yatrie_add(uint8_t *string, uint32_t parent_id, trie_s *trie) {
     //we save first char to the root node_s mask and create new node_s then second char to the just created node_s etc
     uint8_t indexes[MAX_WORD_LENGTH] = {};
     encode_string(indexes, string);
 
     for (int32_t i = 0; indexes[i]; ++i) {
-        parent_id = trie_char_add(parent_id, indexes[i], trie);
+        parent_id = yatrie_char_add(parent_id, indexes[i], trie);
     }
     //add last char flag for the last char
     trie->nodes->data[parent_id].mask[0] = BIT_SET(trie->nodes->data[parent_id].mask[0], 1);
     return parent_id;
 }
 
-uint32_t trie_char_add(uint32_t parent_id, uint8_t char_index, trie_s *trie) {
+uint32_t yatrie_char_add(uint32_t parent_id, uint8_t char_index, trie_s *trie) {
     uint32_t next_node_id;
     uint8_t bits;
     uint8_t pos;

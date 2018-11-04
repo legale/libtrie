@@ -13,3 +13,6 @@ Now counting is performed in 2 steps (4 steps before).
 - trie_s structure rewritten almost completely. added separate flexible size structures nodes_s block, refs_s block, refs_free_s block.
 - changes mapping letter index and bit number. Now they are the same, before index + 1 = bit number.
 - minor refactoring.
+
+# 0.1.1
+- trie_add(), trie_char_add() functions renamed to yatrie_add(), yatrie_char_add(), respectively.

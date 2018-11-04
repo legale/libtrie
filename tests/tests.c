@@ -443,19 +443,19 @@ static int test_trie_char_add() {
     uint32_t node_id_inserted;
 
     //add char index 95 to the node_s 0, returns 1
-    node_id_inserted = trie_char_add(0, 95, trie);
+    node_id_inserted = yatrie_char_add(0, 95, trie);
     U_ASSERT(res, node_id_inserted == 1);
 
     //add char index 95 to the node_s 0 again. Must return same node_id 1
-    node_id_inserted = trie_char_add(0, 95, trie);
+    node_id_inserted = yatrie_char_add(0, 95, trie);
     U_ASSERT(res, node_id_inserted == 1);
 
     //add second char index 2 to the node_s 1, returns 2
-    node_id_inserted = trie_char_add(1, 2, trie);
+    node_id_inserted = yatrie_char_add(1, 2, trie);
     U_ASSERT(res, node_id_inserted == 2);
 
     //add third char index 50 to the node_s 2, returns 3
-    node_id_inserted = trie_char_add(2, 50, trie);
+    node_id_inserted = yatrie_char_add(2, 50, trie);
     U_ASSERT(res, node_id_inserted == 3);
 
     free(trie);
@@ -480,7 +480,7 @@ static int test_trie_add() {
     if (file) {
         for (int j = 0, i = 0; (c = getc(file)) != EOF; ++j) {
             if (c == '\n' || c == '\r') {
-                nodes_ids[i] = trie_add(string, 0, trie);
+                nodes_ids[i] = yatrie_add(string, 0, trie);
                 memset(string, 0, 512);
                 j = -1;
                 ++i;
@@ -677,11 +677,11 @@ static int test_node_traverse() {
     uint8_t word[] = "ёж";
     uint32_t node_id;
 
-    trie_add("ёжистый", 0, trie); //7 letter
-    trie_add("ёж", 0, trie); //2 letters
-    trie_add("ёжисты", 0, trie); //6 letters
-    trie_add("ёжистая", 0, trie); //7 letters
-    trie_add("ёжистее", 0, trie); //7 letters
+    yatrie_add("ёжистый", 0, trie); //7 letter
+    yatrie_add("ёж", 0, trie); //2 letters
+    yatrie_add("ёжисты", 0, trie); //6 letters
+    yatrie_add("ёжистая", 0, trie); //7 letters
+    yatrie_add("ёжистее", 0, trie); //7 letters
 
 
     //create words letters number array
@@ -733,7 +733,7 @@ static int test_node_traverse_decode() {
     };
 
     for (int i = 0, len = sizeof(words) / 20; i < len; ++i) {
-        uint32_t id = trie_add(words[i], 0, trie);
+        uint32_t id = yatrie_add(words[i], 0, trie);
         printf("added word: %s with node id %d\n", words[i], id);
     }
 
@@ -799,7 +799,7 @@ static int test_trie_get_id() {
 
 
     for (int i = 0, size = sizeof(words) / 64; i < size; ++i) {
-        nodes_ids[i] = trie_add(words[i], 0, trie);
+        nodes_ids[i] = yatrie_add(words[i], 0, trie);
     }
 
 
@@ -846,7 +846,7 @@ static int complex_test() {
             if (c == '\n' || c == '\r') {
                 ++i;
 
-                added_nodes[i] = trie_add(string, 0, trie);
+                added_nodes[i] = yatrie_add(string, 0, trie);
 
                 memset(string, 0, 512);
                 j = -1;
@@ -924,7 +924,7 @@ static int test_trie_save_load() {
                 if(i == 0){
                     memcpy(keyword, string, 512);
                 }
-                trie_add(string, 0, trie);
+                yatrie_add(string, 0, trie);
                 memset(string, 0, 512);
                 j = -1;
                 ++i;
@@ -988,7 +988,7 @@ static int another_node_traverse() {
         begin1 = clock();
         for (int j = 0, i = 0; (c = getc(file)) != EOF; ++j) {
             if (c == '\n' || c == '\r') {
-                trie_add(string, 0, trie);
+                yatrie_add(string, 0, trie);
                 memset(string, 0, 512);
                 j = -1;
                 ++i;
