@@ -16,3 +16,8 @@ Now counting is performed in 2 steps (4 steps before).
 
 # 0.1.1
 - trie_add(), trie_char_add() functions renamed to yatrie_add(), yatrie_char_add(), respectively.
+
+# 0.1.2
+- problem with unintialized pointers in yatrie_new() fixed. malloc() replaced with calloc()
+- yatrie_load() ref_t ref_ids[1000]; replaced with ref_t ref_ids[1000] = {};
+- yatrie_load() fixed syntax error caused memory leak while list_push()

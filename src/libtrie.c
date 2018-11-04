@@ -1,6 +1,6 @@
 /* file: libtrie.c
  *
- * libtrie - simple Trie data structure library v0.1.1
+ * libtrie - simple Trie data structure library v0.1.2
  *
  * Copyright (C) 2018  legale.legale <legale.legale@gmail.com>
  * This software is provided under MIT license.
@@ -595,8 +595,7 @@ uint32_t trie_get_id(uint8_t *word, uint32_t parent_id, trie_s *trie) {
 }
 
 size_t yatrie_save(uint8_t *filepath, trie_s *trie) {
-    FILE *file;
-    file = fopen(filepath, "w");
+    FILE *file = fopen(filepath, "w");
 
     //refs_free block prepare
     ref_t ref_ids[1000];
@@ -626,8 +625,8 @@ size_t yatrie_save(uint8_t *filepath, trie_s *trie) {
     fwrite(trie->refs, sizeof(refs_s), 1, file);
 
     //data
-    fwrite(trie->nodes, sizeof(nodes_s) + trie->nodes->size * sizeof(node_s), 1, file);
-    fwrite(trie->refs, sizeof(refs_s) + trie->refs->size * sizeof(ref_t), 1, file);
+    fwrite(trie->nodes, sizeof(nodes_s) + trie->nodes->increment * sizeof(node_s), 1, file);
+    fwrite(trie->refs, sizeof(refs_s) + trie->refs->increment * sizeof(ref_t), 1, file);
     fwrite(&ref_ids, trie->refs_free->disk_size, 1, file);
 
     //list_s *nodes_free;
@@ -659,25 +658,27 @@ trie_s *yatrie_load(uint8_t *filepath) {
     //3 allocate memory for nodes
     //we use calloc() because we need clear mask on new nodes
     trie->nodes = (nodes_s *) calloc(1, sizeof(nodes_s) + sizeof(node_s) * nodes_tmp.size);
-    fread(trie->nodes, sizeof(nodes_s) + sizeof(node_s) * nodes_tmp.size, 1, file);
+    fread(trie->nodes, sizeof(nodes_s) + sizeof(node_s) * nodes_tmp.increment, 1, file);
 
     //4 allocate memory for refs
     trie->refs = (refs_s *) malloc(sizeof(refs_s) + sizeof(ref_t) * refs_tmp.size);
-    fread(trie->refs, sizeof(refs_s) + sizeof(ref_t) * refs_tmp.size, 1, file);
+    fread(trie->refs, sizeof(refs_s) + sizeof(ref_t) * refs_tmp.increment, 1, file);
 
     //2 allocate memory for deallocated refs block
     trie->refs_free = (refs_free_s *) calloc(1, sizeof(refs_free_s) + sizeof(list_s *) * refs_free_tmp.size);
+    trie->refs_free->size = refs_free_tmp.size;
+
 
     //refs_free block prepare
-    ref_t ref_ids[1000]; //array to read data from disk
+    ref_t ref_ids[1000] = {}; //array to read data from disk
     fread(&ref_ids, refs_free_tmp.disk_size, 1, file);
 
     uint32_t last = refs_free_tmp.disk_size / sizeof(ref_t); //last used index
     uint32_t len = 0; //reference block length
     //cycle array, on each '-' sign increment len
     for (int i = 0; i < last ; ++i) {
-        if(UNLIKELY(ref_ids[i] != '-')){
-             list_push(trie->refs_free->data[len], NULL, 0, ref_ids[i]);
+        if(UNLIKELY(ref_ids[i] != '-')){ //minus sign is a terminator symbol
+            trie->refs_free->data[len] = list_push(trie->refs_free->data[len], NULL, 0, ref_ids[i]);
         }else{
             ++len;
         }
@@ -693,7 +694,7 @@ trie_s *yatrie_load(uint8_t *filepath) {
 //create new trie
 trie_s *yatrie_new(uint32_t max_nodes, uint32_t max_refs, uint32_t max_deallocated_size) {
     //1 allocate trie_s memory
-    trie_s *trie = (trie_s *) malloc(sizeof(trie_s));
+    trie_s *trie = (trie_s *) calloc(1, sizeof(trie_s));
 
     //2 allocate memory for deallocated refs block
     refs_free_s *refs_free = (refs_free_s *) (calloc(1, sizeof(refs_free_s) + sizeof(list_s *) * max_deallocated_size));
@@ -723,6 +724,7 @@ void yatrie_free(trie_s *trie) {
     if (UNLIKELY(trie == NULL)) {
         return;
     }
+
 
     //2 deallocate memory for deallocated refs block
     for (uint32_t i = 0; i < trie->refs_free->size; ++i) {
