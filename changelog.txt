@@ -21,3 +21,6 @@ Now counting is performed in 2 steps (4 steps before).
 - problem with unintialized pointers in yatrie_new() fixed. malloc() replaced with calloc()
 - yatrie_load() ref_t ref_ids[1000]; replaced with ref_t ref_ids[1000] = {};
 - yatrie_load() fixed syntax error caused memory leak while list_push()
+
+# 0.1.3
+- decode_string() added terminator char to the end of the dst array

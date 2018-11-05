@@ -1,6 +1,6 @@
 /* file: libtrie.c
  *
- * libtrie - simple Trie data structure library v0.1.2
+ * libtrie - simple Trie data structure library v0.1.3
  *
  * Copyright (C) 2018  legale.legale <legale.legale@gmail.com>
  * This software is provided under MIT license.
@@ -237,6 +237,7 @@ void decode_string(uint8_t dst[], uint8_t src[]) {
             dst[j++] = bca[src[i]][k];
         }
     }
+    dst[j] = '\0'; //terminator
 }
 
 void encode_string(uint8_t *dst, uint8_t *src) {
