@@ -24,3 +24,6 @@ Now counting is performed in 2 steps (4 steps before).
 
 # 0.1.3
 - decode_string() added terminator char to the end of the dst array
+
+# 0.1.4
+- precount_char_init() and char_get_bits_raised() refactored to make lib work with -O3 and -Ofast options enabled

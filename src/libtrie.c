@@ -1,6 +1,6 @@
 /* file: libtrie.c
  *
- * libtrie - simple Trie data structure library v0.1.3
+ * libtrie - simple Trie data structure library v0.1.4
  *
  * Copyright (C) 2018  legale.legale <legale.legale@gmail.com>
  * This software is provided under MIT license.
@@ -20,6 +20,7 @@
 //global static vars
 //precounted bits
 #include "precount.h"
+
 static const unsigned char precount[256] = {PRECOUNT};
 static const unsigned char precount16[65536] = {PRECOUNT16};
 
@@ -44,94 +45,94 @@ uint32_t static const precount32_offset_mask[32] = {
 uint8_t bca[][3] = {
         {},     /*   [0] not used  */
         {},     /*   [1] reserverd */
-        {48, }, /* 0 [2] */
-        {49, }, /* 1 [3] */
-        {50, }, /* 2 [4] */
-        {51, }, /* 3 [5] */
-        {52, }, /* 4 [6] */
-        {53, }, /* 5 [7] */
-        {54, }, /* 6 [8] */
-        {55, }, /* 7 [9] */
-        {56, }, /* 8 [10] */
-        {57, }, /* 9 [11] */
-        {208, 176, }, /* а [12] */
-        {208, 177, }, /* б [13] */
-        {208, 178, }, /* в [14] */
-        {208, 179, }, /* г [15] */
-        {208, 180, }, /* д [16] */
-        {208, 181, }, /* е [17] */
-        {209, 145, }, /* ё [18] */
-        {208, 182, }, /* ж [19] */
-        {208, 183, }, /* з [20] */
-        {208, 184, }, /* и [21] */
-        {208, 185, }, /* й [22] */
-        {208, 186, }, /* к [23] */
-        {208, 187, }, /* л [24] */
-        {208, 188, }, /* м [25] */
-        {208, 189, }, /* н [26] */
-        {208, 190, }, /* о [27] */
-        {208, 191, }, /* п [28] */
-        {209, 128, }, /* р [29] */
-        {209, 129, }, /* с [30] */
-        {209, 130, }, /* т [31] */
-        {209, 131, }, /* у [32] */
-        {209, 132, }, /* ф [33] */
-        {209, 133, }, /* х [34] */
-        {209, 134, }, /* ц [35] */
-        {209, 135, }, /* ч [36] */
-        {209, 136, }, /* ш [37] */
-        {209, 137, }, /* щ [38] */
-        {209, 138, }, /* ъ [39] */
-        {209, 139, }, /* ы [40] */
-        {209, 140, }, /* ь [41] */
-        {209, 141, }, /* э [42] */
-        {209, 142, }, /* ю [43] */
-        {209, 143, }, /* я [44] */
-        {97, }, /* a [45] */
-        {98, }, /* b [46] */
-        {99, }, /* c [47] */
-        {100, }, /* d [48] */
-        {101, }, /* e [49] */
-        {102, }, /* f [50] */
-        {103, }, /* g [51] */
-        {104, }, /* h [52] */
-        {105, }, /* i [53] */
-        {106, }, /* j [54] */
-        {107, }, /* k [55] */
-        {108, }, /* l [56] */
-        {109, }, /* m [57] */
-        {110, }, /* n [58] */
-        {111, }, /* o [59] */
-        {112, }, /* p [60] */
-        {113, }, /* q [61] */
-        {114, }, /* r [62] */
-        {115, }, /* s [63] */
-        {116, }, /* t [64] */
-        {117, }, /* u [65] */
-        {118, }, /* v [66] */
-        {119, }, /* w [67] */
-        {120, }, /* x [68] */
-        {121, }, /* y [69] */
-        {122, }, /* z [70] */
-        {39, }, /* ' [71] */
-        {34, }, /* " [72] */
-        {96, }, /* ` [73] */
-        {126, }, /* ~ [74] */
-        {32, }, /*   [75] */
-        {33, }, /* ! [76] */
-        {64, }, /* @ [77] */
-        {35, }, /* # [78] */
-        {36, }, /* $ [79] */
-        {37, }, /* % [80] */
-        {94, }, /* ^ [81] */
-        {38, }, /* & [82] */
-        {42, }, /* * [83] */
-        {40, }, /* ( [84] */
-        {41, }, /* ) [85] */
-        {95, }, /* _ [86] */
-        {43, }, /* + [87] */
-        {61, }, /* = [88] */
-        {45, }, /* - [89] */
+        {48,}, /* 0 [2] */
+        {49,}, /* 1 [3] */
+        {50,}, /* 2 [4] */
+        {51,}, /* 3 [5] */
+        {52,}, /* 4 [6] */
+        {53,}, /* 5 [7] */
+        {54,}, /* 6 [8] */
+        {55,}, /* 7 [9] */
+        {56,}, /* 8 [10] */
+        {57,}, /* 9 [11] */
+        {208, 176,}, /* а [12] */
+        {208, 177,}, /* б [13] */
+        {208, 178,}, /* в [14] */
+        {208, 179,}, /* г [15] */
+        {208, 180,}, /* д [16] */
+        {208, 181,}, /* е [17] */
+        {209, 145,}, /* ё [18] */
+        {208, 182,}, /* ж [19] */
+        {208, 183,}, /* з [20] */
+        {208, 184,}, /* и [21] */
+        {208, 185,}, /* й [22] */
+        {208, 186,}, /* к [23] */
+        {208, 187,}, /* л [24] */
+        {208, 188,}, /* м [25] */
+        {208, 189,}, /* н [26] */
+        {208, 190,}, /* о [27] */
+        {208, 191,}, /* п [28] */
+        {209, 128,}, /* р [29] */
+        {209, 129,}, /* с [30] */
+        {209, 130,}, /* т [31] */
+        {209, 131,}, /* у [32] */
+        {209, 132,}, /* ф [33] */
+        {209, 133,}, /* х [34] */
+        {209, 134,}, /* ц [35] */
+        {209, 135,}, /* ч [36] */
+        {209, 136,}, /* ш [37] */
+        {209, 137,}, /* щ [38] */
+        {209, 138,}, /* ъ [39] */
+        {209, 139,}, /* ы [40] */
+        {209, 140,}, /* ь [41] */
+        {209, 141,}, /* э [42] */
+        {209, 142,}, /* ю [43] */
+        {209, 143,}, /* я [44] */
+        {97,}, /* a [45] */
+        {98,}, /* b [46] */
+        {99,}, /* c [47] */
+        {100,}, /* d [48] */
+        {101,}, /* e [49] */
+        {102,}, /* f [50] */
+        {103,}, /* g [51] */
+        {104,}, /* h [52] */
+        {105,}, /* i [53] */
+        {106,}, /* j [54] */
+        {107,}, /* k [55] */
+        {108,}, /* l [56] */
+        {109,}, /* m [57] */
+        {110,}, /* n [58] */
+        {111,}, /* o [59] */
+        {112,}, /* p [60] */
+        {113,}, /* q [61] */
+        {114,}, /* r [62] */
+        {115,}, /* s [63] */
+        {116,}, /* t [64] */
+        {117,}, /* u [65] */
+        {118,}, /* v [66] */
+        {119,}, /* w [67] */
+        {120,}, /* x [68] */
+        {121,}, /* y [69] */
+        {122,}, /* z [70] */
+        {39,}, /* ' [71] */
+        {34,}, /* " [72] */
+        {96,}, /* ` [73] */
+        {126,}, /* ~ [74] */
+        {32,}, /*   [75] */
+        {33,}, /* ! [76] */
+        {64,}, /* @ [77] */
+        {35,}, /* # [78] */
+        {36,}, /* $ [79] */
+        {37,}, /* % [80] */
+        {94,}, /* ^ [81] */
+        {38,}, /* & [82] */
+        {42,}, /* * [83] */
+        {40,}, /* ( [84] */
+        {41,}, /* ) [85] */
+        {95,}, /* _ [86] */
+        {43,}, /* + [87] */
+        {61,}, /* = [88] */
+        {45,}, /* - [89] */
 };
 
 
@@ -476,10 +477,10 @@ void node_traverse(words_s *words, uint32_t node_id, string_s *head, trie_s *tri
             //now we need to create heads for each traverse
             string_s head2 = {};
             memcpy(&head2, head, sizeof(string_s));
-            head2.letters[head2.length++] = children.letters[i+1]; // +1 to skip first letter with bit 0
+            head2.letters[head2.length++] = children.letters[i + 1]; // +1 to skip first letter with bit 0
             node_traverse(words, children.nodes[i], &head2, trie);
         }
-    }else{
+    } else {
         //recurse call node traverse on each node_id
         for (uint32_t i = 0; i < children.length; ++i) {
             //now we need to create heads for each traverse
@@ -533,11 +534,14 @@ void char_mask_get_bits_raised_pre(uint8_t *res, uint8_t *bitmask) {
 
 //fill array res with raised bit of the bitmask
 void char_get_bits_raised(uint8_t *res, uint8_t bitmask) {
-    for (int8_t i = 0; i < 8; ++i) {
-        if (bitmask >> i & 1) {
-            *res++ = i + 1;
-        }
-    }
+    if (bitmask & 1) *res++ = 1;
+    if (bitmask >> 1 & 1) *res++ = 2;
+    if (bitmask >> 2 & 1) *res++ = 3;
+    if (bitmask >> 3 & 1) *res++ = 4;
+    if (bitmask >> 4 & 1) *res++ = 5;
+    if (bitmask >> 5 & 1) *res++ = 6;
+    if (bitmask >> 6 & 1) *res++ = 7;
+    if (bitmask >> 7 & 1) *res = 8;
 }
 
 //fill array res with raised bit of the bitmask
@@ -563,13 +567,19 @@ uint8_t *char_get_bits_raised_pre(uint8_t bitmask, uint8_t index) {
 
 //fill precount2 array with arrays of raised bits for the any 1 byte value
 void precount_char_init() {
-    for (int i = 0; i < 256; ++i) { //each byte value cycle
+    for (uint8_t i = 0; i < 256; ++i) { //each byte value cycle
         uint8_t res[8] = {};
         char_get_bits_raised(res, i);
-        for (int j = 0; j < 12; ++j) { //each bitmask index value cycle
-            for (int k = 0; res[k] && k < 8; ++k) {
-                precount2[j][i][k] = res[k] + (j << 3);
-            }
+        for (uint8_t j = 0, k = 0; j < 12; ++j) { //each bitmask index value cycle
+                //this construction works even on -O3 and -Ofast
+                if(res[k]) precount2[j][i][k] = res[k++] + (j << 3);
+                if(res[k]) precount2[j][i][k] = res[k++] + (j << 3);
+                if(res[k]) precount2[j][i][k] = res[k++] + (j << 3);
+                if(res[k]) precount2[j][i][k] = res[k++] + (j << 3);
+                if(res[k]) precount2[j][i][k] = res[k++] + (j << 3);
+                if(res[k]) precount2[j][i][k] = res[k++] + (j << 3);
+                if(res[k]) precount2[j][i][k] = res[k++] + (j << 3);
+                if(res[k]) precount2[j][i][k] = res[k] + (j << 3);
         }
     }
 }
@@ -603,8 +613,8 @@ size_t yatrie_save(uint8_t *filepath, trie_s *trie) {
     uint32_t j = 0;
     for (int i = 0; i < trie->refs_free->size; ++i) {
         if (trie->refs_free->data[i] != NULL) {
-            while(trie->refs_free->data[i]->elements > 0){
-                ref_ids[j++] = (ref_t)list_shift(trie->refs_free->data[i]);
+            while (trie->refs_free->data[i]->elements > 0) {
+                ref_ids[j++] = (ref_t) list_shift(trie->refs_free->data[i]);
             }
             //terminator
             ref_ids[j++] = '-';
@@ -677,10 +687,10 @@ trie_s *yatrie_load(uint8_t *filepath) {
     uint32_t last = refs_free_tmp.disk_size / sizeof(ref_t); //last used index
     uint32_t len = 0; //reference block length
     //cycle array, on each '-' sign increment len
-    for (int i = 0; i < last ; ++i) {
-        if(UNLIKELY(ref_ids[i] != '-')){ //minus sign is a terminator symbol
+    for (int i = 0; i < last; ++i) {
+        if (UNLIKELY(ref_ids[i] != '-')) { //minus sign is a terminator symbol
             trie->refs_free->data[len] = list_push(trie->refs_free->data[len], NULL, 0, ref_ids[i]);
-        }else{
+        } else {
             ++len;
         }
     }
