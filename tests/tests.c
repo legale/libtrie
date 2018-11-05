@@ -894,7 +894,7 @@ static int complex_test() {
 
 static int test_decode_string() {
     int res = 0;
-    uint8_t src[] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
+    uint8_t src[] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 0};
     uint8_t dst[256] = {};
     decode_string(dst, src);
     U_ASSERT(res, memcmp(dst, "0123456789", sizeof("0123456789")) == 0);

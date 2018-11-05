@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.12)
 project(libtrie C)
 set(CMAKE_C_STANDARD 99)
+SET(CMAKE_C_FLAGS "-O2")
 
 include_directories(./utils/)
 include_directories(./src/)
