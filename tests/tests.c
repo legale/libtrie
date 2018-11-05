@@ -1098,7 +1098,7 @@ int main(int argc, char **argv) {
         memcpy(&dic_path, "../dic/english.txt", 18);
     }
 
-
+    printf("dic_path %s\n", dic_path);
     FILE *file = fopen(dic_path, "r");
     if (!file) {
         printf("Unable to read dic: %s\n", dic_path);
