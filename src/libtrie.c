@@ -567,19 +567,28 @@ uint8_t *char_get_bits_raised_pre(uint8_t bitmask, uint8_t index) {
 
 //fill precount2 array with arrays of raised bits for the any 1 byte value
 void precount_char_init() {
-    for (uint8_t i = 0; i < 256; ++i) { //each byte value cycle
+    for (int i = 1; i <= 256; ++i) { //each byte value cycle
         uint8_t res[8] = {};
         char_get_bits_raised(res, i);
-        for (uint8_t j = 0, k = 0; j < 12; ++j) { //each bitmask index value cycle
+        for (uint8_t j = 0; j < 12; ++j) { //each bitmask index value cycle
+                int j_shift = j << 3;
+                char k = 0;
                 //this construction works even on -O3 and -Ofast
-                if(res[k]) precount2[j][i][k] = res[k++] + (j << 3);
-                if(res[k]) precount2[j][i][k] = res[k++] + (j << 3);
-                if(res[k]) precount2[j][i][k] = res[k++] + (j << 3);
-                if(res[k]) precount2[j][i][k] = res[k++] + (j << 3);
-                if(res[k]) precount2[j][i][k] = res[k++] + (j << 3);
-                if(res[k]) precount2[j][i][k] = res[k++] + (j << 3);
-                if(res[k]) precount2[j][i][k] = res[k++] + (j << 3);
-                if(res[k]) precount2[j][i][k] = res[k] + (j << 3);
+                if(res[k]) precount2[j][i][k] = res[k++] + j_shift;
+                else continue;
+                if(res[k]) precount2[j][i][k] = res[k++] + j_shift;
+                else continue;
+                if(res[k]) precount2[j][i][k] = res[k++] + j_shift;
+                else continue;
+                if(res[k]) precount2[j][i][k] = res[k++] + j_shift;
+                else continue;
+                if(res[k]) precount2[j][i][k] = res[k++] + j_shift;
+                else continue;
+                if(res[k]) precount2[j][i][k] = res[k++] + j_shift;
+                else continue;
+                if(res[k]) precount2[j][i][k] = res[k++] + j_shift;
+                else continue;
+                if(res[k]) precount2[j][i][k] = res[k++] + j_shift;
         }
     }
 }
