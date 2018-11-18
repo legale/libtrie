@@ -494,7 +494,7 @@ static int test_trie_add() {
 
         for (int j = 0, i = 0; (c = getc(file)) != EOF; ++j) {
             if (c == '\n' || c == '\r') {
-                U_ASSERT(res, trie_get_id(string, 0, trie) == nodes_ids[i]);
+                U_ASSERT(res, yatrie_get_id(string, 0, trie) == nodes_ids[i]);
                 memset(string, 0, 512);
                 j = -1;
                 ++i;
@@ -744,7 +744,7 @@ static int test_node_traverse_decode() {
     //head container
     string_s head = {};
 
-    uint32_t id = trie_get_id(words[5], 0, trie);
+    uint32_t id = yatrie_get_id(words[5], 0, trie);
 
     node_traverse(words_returned, 0, &head, trie);
 
@@ -806,7 +806,7 @@ static int test_trie_get_id() {
 
 
     for (int i = 0, size = sizeof(words) / 64; i < size; ++i) {
-        U_ASSERT(res, nodes_ids[i] = trie_get_id(words[i], 0, trie));
+        U_ASSERT(res, nodes_ids[i] = yatrie_get_id(words[i], 0, trie));
     }
 
 
@@ -826,7 +826,7 @@ static int complex_test() {
     printf("COMPLEX TEST\n"
            "This test will create trie from a dictionary file, \n"
            "then compare each word leaf node id with returned \n"
-           "node id by the trie_get_id() function \n\n");
+           "node id by the yatrie_get_id() function \n\n");
     printf("Trie settings:\n"
            "node size:       %u bytes\n", sizeof(node_s));
     printf("trie size:       %u kb\n", sizeof(trie_s) / 1024);
@@ -864,7 +864,7 @@ static int complex_test() {
         for (int j = 0, i = 0; (c = getc(file)) != EOF; ++j) {
             if (c == '\n' || c == '\r') {
                 ++i;
-                getted_nodes[i] = trie_get_id(string, 0, trie);
+                getted_nodes[i] = yatrie_get_id(string, 0, trie);
 
                 memset(string, 0, 512);
                 j = -1;
@@ -949,7 +949,7 @@ static int test_trie_save_load() {
     begin2 = clock();
     uint8_t key[] = "africa";
     for(int i = 0; i < 1000000; ++i) {
-        trie_get_id(key, 0, trie);
+        yatrie_get_id(key, 0, trie);
     }
     end2 = clock();
 
@@ -1008,7 +1008,7 @@ static int another_node_traverse() {
     printf("TRAVERSE ALL NODES STARTING FROM 'af' NODE\n\n");
     //get 'af' node id
     uint8_t word[] = "af";
-    uint32_t id = trie_get_id(word, 0, trie);
+    uint32_t id = yatrie_get_id(word, 0, trie);
     if(!id){
         printf("word: %s not found in the trie. Test aborted!\n", word);
         return res;

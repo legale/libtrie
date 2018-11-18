@@ -594,7 +594,7 @@ void precount_char_init() {
 }
 
 
-uint32_t trie_get_id(uint8_t *word, uint32_t parent_id, trie_s *trie) {
+uint32_t yatrie_get_id(uint8_t *word, uint32_t parent_id, trie_s *trie) {
     uint8_t indexes[MAX_WORD_LENGTH] = {};
     encode_string(indexes, word);
     node_s *parent_node = NODE_GET(parent_id, trie);

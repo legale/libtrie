@@ -30,3 +30,4 @@ Now counting is performed in 2 steps (4 steps before).
 
 # 0.1.5
 - yatrie_save() return 0 if fopen is unable to open given file
+- trie_get_id() renamed to yatrie_get_id()

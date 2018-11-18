@@ -155,7 +155,7 @@ void char_mask_get_bits_raised_pre(uint8_t *res, uint8_t *bitmask);
 
 void node_traverse(words_s *words, uint32_t node_id, string_s *head, trie_s *trie);
 
-uint32_t trie_get_id(uint8_t *word, uint32_t parent_id, trie_s *trie);
+uint32_t yatrie_get_id(uint8_t *word, uint32_t parent_id, trie_s *trie);
 
 size_t yatrie_save(uint8_t *filepath, trie_s *trie);
 
