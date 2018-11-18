@@ -27,3 +27,6 @@ Now counting is performed in 2 steps (4 steps before).
 
 # 0.1.4
 - precount_char_init() and char_get_bits_raised() refactored to make lib work with -O3 and -Ofast options enabled
+
+# 0.1.5
+- yatrie_save() return 0 if fopen is unable to open given file

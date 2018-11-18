@@ -9,7 +9,7 @@ include_directories(/usr/include/datrie/)
 
 # library
 add_library(trie SHARED src/single_list.c src/libtrie.c)
-TARGET_COMPILE_OPTIONS(trie PRIVATE -O0)
+TARGET_COMPILE_OPTIONS(trie PRIVATE -Ofast -march=native -mtune=native)
 
 # tests
 add_executable(tests tests/tests.c)

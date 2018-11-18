@@ -1,6 +1,6 @@
 /* file: libtrie.c
  *
- * libtrie - simple Trie data structure library v0.1.4
+ * libtrie - simple Trie data structure library v0.1.5
  *
  * Copyright (C) 2018  legale.legale <legale.legale@gmail.com>
  * This software is provided under MIT license.
@@ -571,24 +571,24 @@ void precount_char_init() {
         uint8_t res[8] = {};
         char_get_bits_raised(res, i);
         for (uint8_t j = 0; j < 12; ++j) { //each bitmask index value cycle
-                int j_shift = j << 3;
-                char k = 0;
-                //this construction works even on -O3 and -Ofast
-                if(res[k]) precount2[j][i][k] = res[k++] + j_shift;
-                else continue;
-                if(res[k]) precount2[j][i][k] = res[k++] + j_shift;
-                else continue;
-                if(res[k]) precount2[j][i][k] = res[k++] + j_shift;
-                else continue;
-                if(res[k]) precount2[j][i][k] = res[k++] + j_shift;
-                else continue;
-                if(res[k]) precount2[j][i][k] = res[k++] + j_shift;
-                else continue;
-                if(res[k]) precount2[j][i][k] = res[k++] + j_shift;
-                else continue;
-                if(res[k]) precount2[j][i][k] = res[k++] + j_shift;
-                else continue;
-                if(res[k]) precount2[j][i][k] = res[k++] + j_shift;
+            int j_shift = j << 3;
+            char k = 0;
+            //this construction works even on -O3 and -Ofast
+            if (res[k]) precount2[j][i][k] = res[k++] + j_shift;
+            else continue;
+            if (res[k]) precount2[j][i][k] = res[k++] + j_shift;
+            else continue;
+            if (res[k]) precount2[j][i][k] = res[k++] + j_shift;
+            else continue;
+            if (res[k]) precount2[j][i][k] = res[k++] + j_shift;
+            else continue;
+            if (res[k]) precount2[j][i][k] = res[k++] + j_shift;
+            else continue;
+            if (res[k]) precount2[j][i][k] = res[k++] + j_shift;
+            else continue;
+            if (res[k]) precount2[j][i][k] = res[k++] + j_shift;
+            else continue;
+            if (res[k]) precount2[j][i][k] = res[k++] + j_shift;
         }
     }
 }
@@ -616,6 +616,9 @@ uint32_t trie_get_id(uint8_t *word, uint32_t parent_id, trie_s *trie) {
 
 size_t yatrie_save(uint8_t *filepath, trie_s *trie) {
     FILE *file = fopen(filepath, "w");
+    if(file == NULL){
+        return 0;
+    }
 
     //refs_free block prepare
     ref_t ref_ids[1000];
