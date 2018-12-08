@@ -34,3 +34,6 @@ Now counting is performed in 2 steps (4 steps before).
 
 # 0.1.6
 - node_traverse() renamed to yatrie_node_traverse()
+
+# 0.1.7
+- node_get_children() renamed to yatrie_node_get_children()

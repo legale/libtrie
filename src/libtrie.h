@@ -1,6 +1,6 @@
 /* file: libtrie.h
  *
- * Libtrie v0.1.6 - simple Trie data structure library
+ * Libtrie v0.1.7 - simple Trie data structure library
  *
  * Copyright (C) 2018  legale.legale <legale.legale@gmail.com>
  * This software is provided under MIT license.
@@ -143,7 +143,7 @@ uint32_t yatrie_char_add(uint32_t parent_id, uint8_t char_index, trie_s *trie);
 
 uint32_t node_insert_ref(uint8_t char_index, uint8_t insert_pos, node_s *parent_node, trie_s *trie);
 
-void node_get_children(children_s *children, uint32_t node_id, trie_s *trie);
+void yatrie_node_get_children(children_s *children, uint32_t node_id, trie_s *trie);
 
 void char_mask_get_bits(uint8_t res[], uint8_t bitmask);
 

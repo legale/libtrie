@@ -1,6 +1,6 @@
 /* file: libtrie.c
  *
- * Libtrie v0.1.6 - simple Trie data structure library
+ * Libtrie v0.1.7 - simple Trie data structure library
  *
  * Copyright (C) 2018  legale.legale <legale.legale@gmail.com>
  * This software is provided under MIT license.
@@ -442,7 +442,7 @@ uint32_t node_insert_ref(uint8_t char_index, uint8_t insert_pos, node_s *parent_
 }
 
 
-void node_get_children(children_s *children, uint32_t node_id, trie_s *trie) {
+void yatrie_node_get_children(children_s *children, uint32_t node_id, trie_s *trie) {
     node_s *parent_node = NODE_GET(node_id, trie);
 
     //if mask is empty return NULL
@@ -465,7 +465,7 @@ void node_get_children(children_s *children, uint32_t node_id, trie_s *trie) {
 
 void yatrie_node_traverse(words_s *words, uint32_t node_id, string_s *head, trie_s *trie) {
     children_s children = {};
-    node_get_children(&children, node_id, trie);
+    yatrie_node_get_children(&children, node_id, trie);
 
 
     //on the last node (leaf) save head to the res

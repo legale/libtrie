@@ -655,7 +655,7 @@ static int test_node_get_children() {
     children_s *children = (children_s *) calloc(1, sizeof(children_s));
 
     //get children
-    node_get_children(children, 0, trie);
+    yatrie_node_get_children(children, 0, trie);
 
     //check saved values
     U_ASSERT(res, children->length == 3); //check counter
