@@ -693,7 +693,7 @@ static int test_node_traverse() {
     //head container
     string_s head = {};
 
-    node_traverse(words, 0, &head, trie);
+    yatrie_node_traverse(words, 0, &head, trie);
 
     //words letters counter
     int length = 0;
@@ -746,7 +746,7 @@ static int test_node_traverse_decode() {
 
     uint32_t id = yatrie_get_id(words[5], 0, trie);
 
-    node_traverse(words_returned, 0, &head, trie);
+    yatrie_node_traverse(words_returned, 0, &head, trie);
 
     printf("\nTraverse root node completed\n"
            "Check passed and returned words\n");
@@ -1029,7 +1029,7 @@ static int another_node_traverse() {
     memcpy(head.letters, encoded, 2);
 
     //traverse node with given id
-    node_traverse(words_returned, id, &head, trie);
+    yatrie_node_traverse(words_returned, id, &head, trie);
 
     //words letters counter
     for (int i = 0; i < words_returned->counter; ++i) {

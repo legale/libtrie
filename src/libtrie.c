@@ -1,6 +1,6 @@
 /* file: libtrie.c
  *
- * libtrie - simple Trie data structure library v0.1.5
+ * Libtrie v0.1.6 - simple Trie data structure library
  *
  * Copyright (C) 2018  legale.legale <legale.legale@gmail.com>
  * This software is provided under MIT license.
@@ -463,7 +463,7 @@ void node_get_children(children_s *children, uint32_t node_id, trie_s *trie) {
 
 }
 
-void node_traverse(words_s *words, uint32_t node_id, string_s *head, trie_s *trie) {
+void yatrie_node_traverse(words_s *words, uint32_t node_id, string_s *head, trie_s *trie) {
     children_s children = {};
     node_get_children(&children, node_id, trie);
 
@@ -478,7 +478,7 @@ void node_traverse(words_s *words, uint32_t node_id, string_s *head, trie_s *tri
             string_s head2 = {};
             memcpy(&head2, head, sizeof(string_s));
             head2.letters[head2.length++] = children.letters[i + 1]; // +1 to skip first letter with bit 0
-            node_traverse(words, children.nodes[i], &head2, trie);
+            yatrie_node_traverse(words, children.nodes[i], &head2, trie);
         }
     } else {
         //recurse call node traverse on each node_id
@@ -487,7 +487,7 @@ void node_traverse(words_s *words, uint32_t node_id, string_s *head, trie_s *tri
             string_s head2 = {};
             memcpy(&head2, head, sizeof(string_s));
             head2.letters[head2.length++] = children.letters[i];
-            node_traverse(words, children.nodes[i], &head2, trie);
+            yatrie_node_traverse(words, children.nodes[i], &head2, trie);
         }
     }
 

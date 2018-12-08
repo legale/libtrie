@@ -1,6 +1,6 @@
 /* file: libtrie.h
  *
- * libtrie - simple Trie data structure library v0.1.5
+ * Libtrie v0.1.6 - simple Trie data structure library
  *
  * Copyright (C) 2018  legale.legale <legale.legale@gmail.com>
  * This software is provided under MIT license.
@@ -153,7 +153,7 @@ uint8_t *char_get_bits_raised_pre(uint8_t bitmask, uint8_t index);
 
 void char_mask_get_bits_raised_pre(uint8_t *res, uint8_t *bitmask);
 
-void node_traverse(words_s *words, uint32_t node_id, string_s *head, trie_s *trie);
+void yatrie_node_traverse(words_s *words, uint32_t node_id, string_s *head, trie_s *trie);
 
 uint32_t yatrie_get_id(uint8_t *word, uint32_t parent_id, trie_s *trie);
 
