@@ -643,10 +643,10 @@ static int test_node_get_children() {
 
 
     //add some data to the root node
-    trie->nodes->data[0].mask[0] = 0b10111; //raise bits 2,3,5
+    trie->nodes->data[0].mask[0] = 0b10111; //raise bits 1,2,3,5
     trie->nodes->data[0].ref_id = 0; //save ref_id
-    uint8_t expected11[MASK_BITS] = {1, 2, 3, 5}; //raise bits 2,3,4
-    uint32_t expected12[MASK_BITS] = {1111, 2222, 3333}; //raise bits 2,3,4
+    uint8_t expected11[MASK_BITS] = {1, 2, 3, 5}; //raise bits 1,2,3,4
+    uint32_t expected12[MASK_BITS] = {1111, 2222, 3333}; //references data
     trie->refs->data[0] = 1111; //ref_id 0
     trie->refs->data[1] = 2222; //ref_id 1
     trie->refs->data[2] = 3333; //ref_id 2

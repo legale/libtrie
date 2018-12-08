@@ -517,7 +517,6 @@ void mask_get_bits_raised(uint8_t res[], uint8_t bitmask[]) {
 
 //to fill array res with numbers of raised bits of the bitmask using precount2 array
 void char_mask_get_bits_raised_pre(uint8_t *res, uint8_t *bitmask) {
-    memset(res, 0, MASK_BITS);
     for (int8_t i = 0; i < 12; ++i) {
         if (bitmask[i] == 0) {
             continue;
@@ -546,7 +545,6 @@ void char_get_bits_raised(uint8_t *res, uint8_t bitmask) {
 
 //fill array res with raised bit of the bitmask
 void int32_get_bits_raised(uint8_t *res, uint32_t bitmask) {
-    memset(res, 0, 32);
     for (int8_t i = 0; i < 32; ++i) {
         if (bitmask >> i & 1) {
             *res++ = i + 1;
