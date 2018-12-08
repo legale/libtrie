@@ -901,6 +901,12 @@ static int test_decode_string() {
     return res;
 }
 
+static int test_load_missed_file() {
+    int res = 0;
+    U_ASSERT(res, yatrie_load("somethingoriginal.trie") == NULL);
+    return res;
+}
+
 static int test_trie_save_load() {
     time_t begin1 = 0;
     time_t end1 = 0;
@@ -1058,6 +1064,7 @@ static int all_tests() {
     U_RUN(test_foo);
 
     U_RUN(test_yatrie_new);
+    U_RUN(test_load_missed_file);
     U_RUN(test_bit_int32_count);
     U_RUN(test_bit_get);
     U_RUN(test_bit_set);

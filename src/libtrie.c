@@ -1,6 +1,6 @@
 /* file: libtrie.c
  *
- * Libtrie v0.1.7 - simple Trie data structure library
+ * Libtrie v0.1.8 - simple Trie data structure library
  *
  * Copyright (C) 2018  legale.legale <legale.legale@gmail.com>
  * This software is provided under MIT license.
@@ -663,6 +663,8 @@ size_t yatrie_save(uint8_t *filepath, trie_s *trie) {
 trie_s *yatrie_load(uint8_t *filepath) {
     FILE *file;
     file = fopen(filepath, "r");
+    if(file == NULL) return NULL;
+
     //1 allocate trie_s memory
     trie_s *trie = (trie_s *) malloc(sizeof(trie_s));
     //trie_s *trie;

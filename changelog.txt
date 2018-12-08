@@ -37,3 +37,7 @@ Now counting is performed in 2 steps (4 steps before).
 
 # 0.1.7
 - node_get_children() renamed to yatrie_node_get_children()
+
+# 0.1.8
+- yatrie_load() modified, now it returns NULL if the trie file cannot be opened.
+- added test test_load_missed_file()
