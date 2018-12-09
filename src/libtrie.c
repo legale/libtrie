@@ -630,11 +630,11 @@ void yatrie_get_word_nodes(word_nodes_s *res, uint8_t *word, uint32_t parent_id,
     for (uint32_t j = 0; indexes[i]; ++i, ++j) {
 
         if(IS_LEAF(parent_node)){
-            ++res->length;
             res->letters[j] = 1;
         } else {
             res->letters[j] = -1;
         }
+        ++res->length;
         res->nodes[j] = parent_id;
 
         //if char exists in the bitmask we need to get next node_s id from the references block
