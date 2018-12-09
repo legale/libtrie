@@ -1,6 +1,6 @@
 /* file: libtrie.h
  *
- * Libtrie v0.1.8 - simple Trie data structure library
+ * Libtrie v0.1.9 - simple Trie data structure library
  *
  * Copyright (C) 2018  legale.legale <legale.legale@gmail.com>
  * This software is provided under MIT license.
@@ -91,6 +91,12 @@ typedef struct _trie_s {
     list_s *nodes_free;
 } trie_s;
 
+//word nodes structure
+typedef struct _word_nodes_s {
+    uint8_t length;    //refs block counter
+    int8_t letters[MAX_WORD_LENGTH];
+    uint32_t nodes[MAX_WORD_LENGTH];
+} word_nodes_s;
 
 
 //macro functions
@@ -100,10 +106,12 @@ typedef struct _trie_s {
 #define REF_GET(ref_id, offset, trie) trie->refs->data[ref_id + offset]
 
 
+
 #define BIT_GET(bitmask, bit) ((bitmask) >> (bit - 1) & 1)
 #define BIT_SET(bitmask, bit) ((bitmask) | (1 << bit - 1))
 #define CHAR_BIT_COUNT(bitmask) (precount[(bitmask)])
 #define INT32_BIT_COUNT(bitmask) (precount16[(bitmask) & 0xffff] + precount16[((bitmask) >> 16) & 0xffff])
+#define IS_LEAF(node) BIT_GET(node->mask[0], 1)
 
 //macro functions that requires bit_array_rest and bit_array_index
 //global static var for the BIT_ARRAY_GET(), BIT_ARRAY_SET() macros.
@@ -156,6 +164,8 @@ void char_mask_get_bits_raised_pre(uint8_t *res, uint8_t *bitmask);
 void yatrie_node_traverse(words_s *words, uint32_t node_id, string_s *head, trie_s *trie);
 
 uint32_t yatrie_get_id(uint8_t *word, uint32_t parent_id, trie_s *trie);
+
+void yatrie_get_word_nodes(word_nodes_s *res, uint8_t *word, uint32_t parent_id, trie_s *trie);
 
 size_t yatrie_save(uint8_t *filepath, trie_s *trie);
 

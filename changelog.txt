@@ -41,3 +41,7 @@ Now counting is performed in 2 steps (4 steps before).
 # 0.1.8
 - yatrie_load() modified, now it returns NULL if the trie file cannot be opened.
 - added test test_load_missed_file()
+
+# 0.1.9
+- `yatrie_get_id()` function `uint8_t indexes[MAX_WORD_LENGTH] = {};` changed to `uint8_t indexes[MASK_BITS] = {};`
+- `yatrie_get_word_nodes()` function with test added. Allow you to get word letters node ids and its leaf status.

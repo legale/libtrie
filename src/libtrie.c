@@ -1,6 +1,6 @@
 /* file: libtrie.c
  *
- * Libtrie v0.1.8 - simple Trie data structure library
+ * Libtrie v0.1.9 - simple Trie data structure library
  *
  * Copyright (C) 2018  legale.legale <legale.legale@gmail.com>
  * This software is provided under MIT license.
@@ -593,7 +593,8 @@ void precount_char_init() {
 
 
 uint32_t yatrie_get_id(uint8_t *word, uint32_t parent_id, trie_s *trie) {
-    uint8_t indexes[MAX_WORD_LENGTH] = {};
+    uint8_t indexes[MASK_BITS] = {}; //array to store bitmask
+
     encode_string(indexes, word);
     node_s *parent_node = NODE_GET(parent_id, trie);
 
@@ -610,6 +611,45 @@ uint32_t yatrie_get_id(uint8_t *word, uint32_t parent_id, trie_s *trie) {
         }
     }
     return parent_id;
+}
+
+void yatrie_get_word_nodes(word_nodes_s *res, uint8_t *word, uint32_t parent_id, trie_s *trie) {
+    uint8_t indexes[MASK_BITS] = {}; //array to store bitmask
+    uint32_t i = 0;
+    uint8_t pos = 0;
+
+    encode_string(indexes, word);
+    node_s *parent_node = NODE_GET(parent_id, trie);
+
+    //first node
+    pos = bit_int32_count(parent_node->mask, 1, indexes[i++] - 1);
+    parent_id = REF_GET(parent_node->ref_id, pos, trie);
+    parent_node = NODE_GET(parent_id, trie);
+
+    //cycle starts from the second node
+    for (uint32_t j = 0; indexes[i]; ++i, ++j) {
+
+        if(IS_LEAF(parent_node)){
+            ++res->length;
+            res->letters[j] = 1;
+        } else {
+            res->letters[j] = -1;
+        }
+        res->nodes[j] = parent_id;
+
+        //if char exists in the bitmask we need to get next node_s id from the references block
+        if (LIKELY(BIT_ARRAY_GET(parent_node->mask, indexes[i]))) {
+            //number of chars (bits) before the current char (bit) position in the alphabet
+            //count the number of bits before char to determine its position
+            pos = bit_int32_count(parent_node->mask, 1, indexes[i] - 1);
+            parent_id = REF_GET(parent_node->ref_id, pos, trie);
+            parent_node = NODE_GET(parent_id, trie);
+        } else {
+            return;
+        }
+
+    }
+    return;
 }
 
 size_t yatrie_save(uint8_t *filepath, trie_s *trie) {

@@ -645,7 +645,7 @@ static int test_node_get_children() {
     //add some data to the root node
     trie->nodes->data[0].mask[0] = 0b10111; //raise bits 1,2,3,5
     trie->nodes->data[0].ref_id = 0; //save ref_id
-    uint8_t expected11[MASK_BITS] = {1, 2, 3, 5}; //raise bits 1,2,3,4
+    uint8_t expected11[MASK_BITS] = {1, 2, 3, 5}; //raise bits 1,2,3,5
     uint32_t expected12[MASK_BITS] = {1111, 2222, 3333}; //references data
     trie->refs->data[0] = 1111; //ref_id 0
     trie->refs->data[1] = 2222; //ref_id 1
@@ -665,6 +665,39 @@ static int test_node_get_children() {
     yatrie_free(trie);
     free(children);
     return res;
+}
+
+static int test_yatrie_get_word_nodes() {
+    int res = 0;
+    trie_s *trie = yatrie_new(500, 500, 200);
+    word_nodes_s word_nodes = {};
+
+    yatrie_add("а", 0, trie);
+
+    //found word length
+    memset(&word_nodes, 0, sizeof(word_nodes_s));
+    yatrie_get_word_nodes(&word_nodes,  "", 0, trie);
+    U_ASSERT(res, word_nodes.length == 0); //0 expected
+    U_ASSERT(res, word_nodes.letters[0] == 0); //0 expected
+    U_ASSERT(res, word_nodes.nodes[0] == 0); //0 expected
+
+    memset(&word_nodes, 0, sizeof(word_nodes_s));
+    yatrie_get_word_nodes(&word_nodes,  "абв", 0, trie);
+    U_ASSERT(res, word_nodes.length == 1); //1 expected
+    U_ASSERT(res, word_nodes.letters[0] == 1); //1 expected
+    U_ASSERT(res, word_nodes.nodes[0] == 1); //1 expected
+
+    yatrie_add("аб", 0, trie);
+    memset(&word_nodes, 0, sizeof(word_nodes_s));
+    yatrie_get_word_nodes(&word_nodes,  "абв", 0, trie);
+    U_ASSERT(res, word_nodes.length == 2); //2 expected
+    U_ASSERT(res, word_nodes.letters[0] == 1); //1 expected
+    U_ASSERT(res, word_nodes.letters[1] == 1); //1 expected
+    U_ASSERT(res, word_nodes.nodes[0] == 1); //1 expected
+    U_ASSERT(res, word_nodes.nodes[1] == 2); //2 expected
+
+    return res;
+
 }
 
 static int test_node_traverse() {
@@ -1063,6 +1096,7 @@ static int test_yatrie_new() {
 static int all_tests() {
     U_RUN(test_foo);
 
+    U_RUN(test_yatrie_get_word_nodes);
     U_RUN(test_yatrie_new);
     U_RUN(test_load_missed_file);
     U_RUN(test_bit_int32_count);
