@@ -1,6 +1,6 @@
 /* file: libtrie.c
  *
- * Libtrie v0.1.9 - simple Trie data structure library
+ * Libtrie v0.1.10 - simple Trie data structure library
  *
  * Copyright (C) 2018  legale.legale <legale.legale@gmail.com>
  * This software is provided under MIT license.
@@ -627,7 +627,7 @@ void yatrie_get_word_nodes(word_nodes_s *res, uint8_t *word, uint32_t parent_id,
     parent_node = NODE_GET(parent_id, trie);
 
     //cycle starts from the second node
-    for (uint32_t j = 0; indexes[i]; ++i, ++j) {
+    for (uint32_t j = 0; indexes[j]; ++i, ++j) {
 
         if(IS_LEAF(parent_node)){
             res->letters[j] = 1;

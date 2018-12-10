@@ -696,6 +696,11 @@ static int test_yatrie_get_word_nodes() {
     U_ASSERT(res, word_nodes.nodes[0] == 1); //1 expected
     U_ASSERT(res, word_nodes.nodes[1] == 2); //2 expected
 
+    yatrie_add("абвг", 0, trie);
+    memset(&word_nodes, 0, sizeof(word_nodes_s));
+    yatrie_get_word_nodes(&word_nodes,  "абвг", 0, trie);
+    U_ASSERT(res, word_nodes.letters[3] == 1); //1 expected
+    U_ASSERT(res, word_nodes.letters[4] == 0); //-1 expected
     return res;
 
 }

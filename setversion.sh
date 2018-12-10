@@ -1,7 +1,7 @@
 #!/bin/bash
 # version changing script
 NAME=Libtrie
-VERSION=0.1.9
+VERSION=0.1.10
 
 FROM="$NAME v[0-9]{1,2}.[0-9]{1,2}.[0-9]{1,2}"
 TO="$NAME v$VERSION"
