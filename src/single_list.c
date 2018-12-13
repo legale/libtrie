@@ -121,8 +121,7 @@ list_node_s *list_nodes_traverse(list_node_s *parent, list_node_s *node, unsigne
                 lst->tail->key = NULL; //set list_s key pointer to NULL
             }
             free(lst->tail);
-            lst->tail = NULL; //set list_s pointer to NULL
-            lst->tail = next ? next : lst->head;
+            lst->tail = next;
         }
         --lst->elements;
         return value;
@@ -145,14 +144,14 @@ list_node_s *list_nodes_traverse(list_node_s *parent, list_node_s *node, unsigne
             lst->tail = NULL; //set list_s pointer to NULL
         } else {
             list_node_s *next = lst->head->next;
+
             if (lst->head->key != NULL) {
                 free(lst->head->key); //free key memory
                 lst->head->key = NULL; //set list_s key pointer to NULL
             }
 
             free(lst->head);
-            lst->head = NULL; //set list_s pointer to NULL
-            lst->head = next ? next : lst->tail;
+            lst->head = next;
         }
         --lst->elements;
         return value;
