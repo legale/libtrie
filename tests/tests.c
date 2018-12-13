@@ -670,6 +670,7 @@ static int test_node_get_children() {
 static int test_yatrie_get_word_nodes() {
     int res = 0;
     trie_s *trie = yatrie_new(500, 500, 200);
+    uint32_t last_id = 0;
     word_nodes_s word_nodes = {};
 
     yatrie_add("а", 0, trie);
@@ -701,6 +702,17 @@ static int test_yatrie_get_word_nodes() {
     yatrie_get_word_nodes(&word_nodes,  "абвг", 0, trie);
     U_ASSERT(res, word_nodes.letters[3] == 1); //1 expected
     U_ASSERT(res, word_nodes.letters[4] == 0); //-1 expected
+
+    last_id = yatrie_get_id( "абвг", 0 , trie);
+
+    yatrie_free(trie);
+
+    trie = yatrie_load("./../dic/suffix.trie");
+    last_id = yatrie_get_id( "кево", 0 , trie);
+    memset(&word_nodes, 0, sizeof(word_nodes_s));
+    yatrie_get_word_nodes(&word_nodes,  "кеволеч", 0, trie);
+
+
     return res;
 
 }

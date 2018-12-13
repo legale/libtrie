@@ -1,6 +1,6 @@
 /* file: libtrie.c
  *
- * Libtrie v0.1.10 - simple Trie data structure library
+ * Libtrie v0.1.11 - simple Trie data structure library
  *
  * Copyright (C) 2018  legale.legale <legale.legale@gmail.com>
  * This software is provided under MIT license.
@@ -599,7 +599,7 @@ uint32_t yatrie_get_id(uint8_t *word, uint32_t parent_id, trie_s *trie) {
     node_s *parent_node = NODE_GET(parent_id, trie);
 
     for (uint32_t i = 0; indexes[i]; ++i) {
-        //if char exists in the bitmask we need to get next node_s id from the references block
+        //if char existsdecode_string in the bitmask we need to get next node_s id from the references block
         if (LIKELY(BIT_ARRAY_GET(parent_node->mask, indexes[i]))) {
             //number of chars (bits) before the current char (bit) position in the alphabet
             //count the number of bits before char to determine its position

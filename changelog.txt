@@ -48,3 +48,6 @@ Now counting is performed in 2 steps (4 steps before).
 
 # 0.1.10
 - `yatrie_get_word_nodes()` bug fix.
+
+# 0.1.11
+- list_pop() list_shift() bug fix.

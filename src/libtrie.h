@@ -1,6 +1,6 @@
 /* file: libtrie.h
  *
- * Libtrie v0.1.10 - simple Trie data structure library
+ * Libtrie v0.1.11 - simple Trie data structure library
  *
  * Copyright (C) 2018  legale.legale <legale.legale@gmail.com>
  * This software is provided under MIT license.

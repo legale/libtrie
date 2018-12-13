@@ -1,6 +1,6 @@
 /* file: single_list.c
  *
- * Single linked list_s structure v0.3
+ * Single linked list_s structure v0.4
  *
  * Copyright (C) 2018  legale.legale <legale.legale@gmail.com>
  * This software is provided under MIT license.
@@ -122,7 +122,7 @@ list_node_s *list_nodes_traverse(list_node_s *parent, list_node_s *node, unsigne
             }
             free(lst->tail);
             lst->tail = NULL; //set list_s pointer to NULL
-            lst->tail = next;
+            lst->tail = next ? next : lst->head;
         }
         --lst->elements;
         return value;
@@ -152,7 +152,7 @@ list_node_s *list_nodes_traverse(list_node_s *parent, list_node_s *node, unsigne
 
             free(lst->head);
             lst->head = NULL; //set list_s pointer to NULL
-            lst->head = next;
+            lst->head = next ? next : lst->tail;
         }
         --lst->elements;
         return value;
